@@ -3,8 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="artifact-type" content="tool">
-  <meta name="design-style" content="carbon">
   <title>期中預警系統 — 教師登錄暨教務管理平台</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,22 +11,14 @@
   <style>
     :root {
       color-scheme: light;
-
-      /* Carbon surfaces */
       --background: #ffffff;
       --surface-container-low: #f4f4f4;
       --surface-container: #f4f4f4;
       --surface-container-high: #e0e0e0;
-
-      /* Carbon ink */
       --on-surface: #161616;
       --on-surface-variant: #525252;
-
-      /* Carbon rules */
       --outline: #8d8d8d;
       --outline-variant: #e0e0e0;
-
-      /* Carbon accents */
       --primary: #0f62fe;
       --primary-hover: #0353e9;
       --on-primary: #ffffff;
@@ -38,64 +28,38 @@
       --tertiary: #198038;
       --error: #da1e28;
       --on-error: #ffffff;
-
-      /* Semantic tokens */
       --positive: #198038;
       --positive-bg: #defbe6;
       --warning: #8a5a00;
       --warning-bg: #fcf4d6;
       --error-bg: #fff1f1;
       --focus: #0f62fe;
-
-      /* Data series */
       --data-1: #0f62fe;
-      --data-2: #6929c4;
-      --data-3: #005d5d;
       --data-4: #9f1853;
-      --data-context: #8d8d8d;
-
-      /* Typography */
       --font-headline: 'Noto Sans TC', 'IBM Plex Sans', sans-serif;
       --font-body: 'Noto Sans TC', 'IBM Plex Sans', sans-serif;
       --font-label: 'IBM Plex Mono', 'Noto Sans TC', monospace;
-
       --display-size: clamp(1.75rem, 1.4rem + 1.2vw, 2.25rem);
       --headline-size: clamp(1.25rem, 1.1rem + 0.5vw, 1.5rem);
       --subhead-size: clamp(1.0625rem, 1rem + 0.25vw, 1.1875rem);
       --body-size: clamp(0.9375rem, 0.9rem + 0.15vw, 1rem);
       --label-size: 0.75rem;
-
-      /* Shape */
-      --rounded: 0.125rem;
-      --rounded-lg: 0.25rem;
       --rounded-full: 0.75rem;
-
-      /* Effects */
-      --shadow-1: 0 2px 6px rgba(0, 0, 0, 0.1);
       --shadow-2: 0 4px 12px rgba(0, 0, 0, 0.14);
       --backdrop-scrim: rgba(22, 22, 22, 0.48);
       --rule: 1px solid var(--outline-variant);
       --field-rule: 1px solid var(--outline);
       --indicator: 2px solid var(--primary);
-
-      /* Spacing scale (4pt base) */
       --space-xs: 0.25rem;
       --space-sm: 0.5rem;
       --space-md: 1rem;
       --space-lg: 1.5rem;
       --space-xl: 2.5rem;
-      --space-2xl: 4rem;
-      --space-3xl: 6rem;
-
-      /* Motion */
       --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-      --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
       --dur-micro: 120ms;
       --dur-short: 220ms;
-      --dur-long: 420ms;
     }
 
-    /* Base reset */
     *, *::before, *::after { box-sizing: border-box; }
     html, body {
       overflow-x: clip;
@@ -110,26 +74,13 @@
     }
     header { position: static !important; }
     button, input, select, textarea { font-family: inherit; }
-
-    /* Focus rings */
-    :focus-visible {
-      outline: 2px solid var(--focus);
-      outline-offset: 2px;
-    }
+    :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
 
     .sr-only {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      padding: 0;
-      margin: -1px;
-      overflow: hidden;
-      clip: rect(0, 0, 0, 0);
-      white-space: nowrap;
-      border: 0;
+      position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+      overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
     }
 
-    /* Layout shell */
     .app-shell {
       max-width: 1440px;
       margin: 0 auto;
@@ -139,738 +90,265 @@
     }
     .app-shell * { min-width: 0; }
 
-    /* Top service masthead */
     .masthead {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      align-items: flex-end;
-      gap: var(--space-md);
-      padding-bottom: var(--space-md);
-      border-bottom: var(--rule);
+      display: flex; flex-wrap: wrap; justify-content: space-between;
+      align-items: flex-end; gap: var(--space-md);
+      padding-bottom: var(--space-md); border-bottom: var(--rule);
     }
-    .brand-block {
-      display: grid;
-      gap: var(--space-xs);
-    }
+    .brand-block { display: grid; gap: var(--space-xs); }
     .brand-eyebrow {
-      font-family: var(--font-label);
-      font-size: var(--label-size);
-      color: var(--on-surface-variant);
-      display: flex;
-      align-items: center;
-      gap: var(--space-sm);
+      font-family: var(--font-label); font-size: var(--label-size);
+      color: var(--on-surface-variant); display: flex; flex-wrap: wrap;
+      align-items: center; gap: var(--space-sm);
     }
+    .sync-pill {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 1px 8px; background: var(--surface-container-high);
+      color: var(--on-surface); font-size: 0.75rem;
+    }
+    .sync-pill.is-online { background: var(--positive-bg); color: var(--positive); }
+    .sync-pill.is-offline { background: var(--warning-bg); color: var(--warning); }
+
     .headline {
-      font-family: var(--font-headline);
-      font-size: var(--display-size);
-      font-weight: 300;
-      line-height: 1.2;
-      margin: 0;
-      color: var(--on-surface);
+      font-family: var(--font-headline); font-size: var(--display-size);
+      font-weight: 300; line-height: 1.2; margin: 0; color: var(--on-surface);
     }
     .headline strong { font-weight: 700; }
-    .subhead-lead {
-      margin: 0;
-      font-size: var(--body-size);
-      color: var(--on-surface-variant);
-    }
+    .subhead-lead { margin: 0; font-size: var(--body-size); color: var(--on-surface-variant); }
 
-    .session-bar {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: var(--space-sm);
-    }
+    .session-bar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-sm); }
     .session-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: var(--space-xs);
-      height: 40px;
-      padding: 0 var(--space-md);
-      background: var(--surface-container);
-      color: var(--on-surface);
-      font-family: var(--font-label);
-      font-size: 0.8125rem;
+      display: inline-flex; align-items: center; gap: var(--space-xs);
+      height: 40px; padding: 0 var(--space-md); background: var(--surface-container);
+      color: var(--on-surface); font-family: var(--font-label); font-size: 0.8125rem;
       border-bottom: var(--indicator);
     }
-    .session-badge.is-idle {
-      border-bottom: 2px solid var(--outline);
-      color: var(--on-surface-variant);
-    }
-    .session-badge.is-admin {
-      background: var(--primary-container);
-      color: var(--on-primary-container);
-    }
+    .session-badge.is-idle { border-bottom: 2px solid var(--outline); color: var(--on-surface-variant); }
+    .session-badge.is-admin { background: var(--primary-container); color: var(--on-primary-container); }
 
-    /* Carbon flat gray layers */
-    .layer {
-      background: var(--surface-container);
-      border-radius: 0;
-      padding: var(--space-lg);
-    }
-    .layer .layer {
-      background: var(--surface-container-high);
-    }
+    .layer { background: var(--surface-container); padding: var(--space-lg); }
+    .layer .layer { background: var(--surface-container-high); }
 
     .section-head {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      align-items: center;
-      gap: var(--space-sm);
-      padding-bottom: var(--space-sm);
-      margin-bottom: var(--space-md);
+      display: flex; flex-wrap: wrap; justify-content: space-between;
+      align-items: center; gap: var(--space-sm);
+      padding-bottom: var(--space-sm); margin-bottom: var(--space-md);
       border-bottom: var(--rule);
     }
-    .section-title {
-      font-family: var(--font-headline);
-      font-size: var(--headline-size);
-      font-weight: 300;
-      margin: 0;
-      line-height: 1.25;
-    }
-    .section-title strong { font-weight: 600; }
     .small-heading {
-      font-family: var(--font-headline);
-      font-size: var(--subhead-size);
-      font-weight: 600;
-      margin: 0;
-      line-height: 1.3;
+      font-family: var(--font-headline); font-size: var(--subhead-size);
+      font-weight: 600; margin: 0; line-height: 1.3;
     }
 
-    /* Labels & mono */
-    .mono {
-      font-family: var(--font-label);
-      font-variant-numeric: tabular-nums;
-    }
+    .mono { font-family: var(--font-label); font-variant-numeric: tabular-nums; }
     .code-tag {
-      display: inline-flex;
-      align-items: center;
-      height: 24px;
-      padding: 0 var(--space-sm);
-      background: var(--primary-container);
-      color: var(--on-primary-container);
-      border-radius: var(--rounded-full);
-      font-family: var(--font-label);
-      font-size: var(--label-size);
-      font-weight: 500;
-      white-space: nowrap;
-    }
-    .status-tag {
-      display: inline-flex;
-      align-items: center;
-      gap: var(--space-xs);
-      height: 24px;
-      padding: 0 var(--space-sm);
-      border-radius: var(--rounded-full);
-      font-size: var(--label-size);
-      font-weight: 500;
-      white-space: nowrap;
-    }
-    .status-tag.is-ok {
-      background: var(--positive-bg);
-      color: var(--positive);
-    }
-    .status-tag.is-warn {
-      background: var(--warning-bg);
-      color: var(--warning);
-    }
-    .status-tag.is-danger {
-      background: var(--error-bg);
-      color: var(--error);
-    }
-    .status-tag.is-neutral {
-      background: var(--surface-container-high);
-      color: var(--on-surface-variant);
+      display: inline-flex; align-items: center; height: 24px; padding: 0 var(--space-sm);
+      background: var(--primary-container); color: var(--on-primary-container);
+      border-radius: var(--rounded-full); font-family: var(--font-label);
+      font-size: var(--label-size); font-weight: 500; white-space: nowrap;
     }
 
-    /* Buttons (Carbon square corners, 40px-48px height, no shadows) */
     .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: flex-start;
-      gap: var(--space-sm);
-      min-height: 44px;
-      padding: var(--space-sm) var(--space-lg);
-      border: 1px solid transparent;
-      border-radius: 0;
-      font-size: var(--body-size);
-      font-weight: 400;
-      cursor: pointer;
-      text-decoration: none;
-      white-space: nowrap;
+      display: inline-flex; align-items: center; justify-content: flex-start;
+      gap: var(--space-sm); min-height: 44px; padding: var(--space-sm) var(--space-lg);
+      border: 1px solid transparent; border-radius: 0; font-size: var(--body-size);
+      font-weight: 400; cursor: pointer; text-decoration: none; white-space: nowrap;
       transition: background-color var(--dur-micro) var(--ease-out),
                   color var(--dur-micro) var(--ease-out),
                   border-color var(--dur-micro) var(--ease-out);
     }
-    .btn-compact {
-      min-height: 40px;
-      padding: var(--space-xs) var(--space-md);
-      font-size: 0.875rem;
-    }
-    .btn-primary {
-      background: var(--primary);
-      color: var(--on-primary);
-    }
-    .btn-primary:hover:not(:disabled) {
-      background: var(--primary-hover);
-    }
-    .btn-secondary {
-      background: var(--background);
-      color: var(--primary);
-      border-color: var(--primary);
-    }
-    .btn-secondary:hover:not(:disabled) {
-      background: var(--primary-container);
-      color: var(--on-primary-container);
-    }
-    .btn-tertiary {
-      background: var(--surface-container-high);
-      color: var(--on-surface);
-    }
-    .btn-tertiary:hover:not(:disabled) {
-      background: var(--outline-variant);
-    }
-    .btn-ghost {
-      background: transparent;
-      color: var(--primary);
-      padding-left: var(--space-sm);
-      padding-right: var(--space-sm);
-    }
-    .btn-ghost:hover:not(:disabled) {
-      background: var(--surface-container-high);
-    }
-    .btn-danger {
-      background: var(--error);
-      color: var(--on-error);
-    }
-    .btn-danger:hover:not(:disabled) {
-      background: var(--on-surface);
-    }
-    .btn:disabled {
-      opacity: 0.45;
-      cursor: not-allowed;
-    }
+    .btn-compact { min-height: 40px; padding: var(--space-xs) var(--space-md); font-size: 0.875rem; }
+    .btn-primary { background: var(--primary); color: var(--on-primary); }
+    .btn-primary:hover:not(:disabled) { background: var(--primary-hover); }
+    .btn-secondary { background: var(--background); color: var(--primary); border-color: var(--primary); }
+    .btn-secondary:hover:not(:disabled) { background: var(--primary-container); color: var(--on-primary-container); }
+    .btn-tertiary { background: var(--surface-container-high); color: var(--on-surface); }
+    .btn-tertiary:hover:not(:disabled) { background: var(--outline-variant); }
+    .btn-ghost { background: transparent; color: var(--primary); padding-left: var(--space-sm); padding-right: var(--space-sm); }
+    .btn-ghost:hover:not(:disabled) { background: var(--surface-container-high); }
+    .btn-danger { background: var(--error); color: var(--on-error); }
+    .btn-danger:hover:not(:disabled) { background: var(--on-surface); }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
 
-    /* Form fields */
-    .field-group {
-      display: grid;
-      gap: var(--space-xs);
-    }
-    .field-label {
-      font-size: var(--label-size);
-      font-weight: 500;
-      color: var(--on-surface-variant);
-    }
+    .field-group { display: grid; gap: var(--space-xs); }
+    .field-label { font-size: var(--label-size); font-weight: 500; color: var(--on-surface-variant); }
     .field-control {
-      width: 100%;
-      height: 40px;
-      padding: 0 var(--space-md);
-      background: var(--background);
-      color: var(--on-surface);
-      border: 0;
-      border-bottom: var(--field-rule);
-      border-radius: 0;
+      width: 100%; height: 40px; padding: 0 var(--space-md);
+      background: var(--background); color: var(--on-surface);
+      border: 0; border-bottom: var(--field-rule); border-radius: 0;
       font-size: var(--body-size);
-      transition: background-color var(--dur-micro) var(--ease-out);
     }
-    .layer .field-control {
-      background: var(--background);
-    }
-    .field-control:focus {
-      outline: 2px solid var(--focus);
-      outline-offset: -2px;
-    }
-    select.field-control {
-      padding-right: var(--space-xl);
-      cursor: pointer;
-    }
-    textarea.field-control {
-      height: auto;
-      min-height: 84px;
-      padding: var(--space-sm) var(--space-md);
-      resize: vertical;
-    }
-    .field-hint {
-      font-size: var(--label-size);
-      color: var(--on-surface-variant);
-    }
-    .field-error-text {
-      font-size: var(--label-size);
-      color: var(--error);
-      font-weight: 500;
-    }
+    .field-control:focus { outline: 2px solid var(--focus); outline-offset: -2px; }
+    select.field-control { padding-right: var(--space-xl); cursor: pointer; }
+    textarea.field-control { height: auto; min-height: 84px; padding: var(--space-sm) var(--space-md); resize: vertical; }
+    .field-hint { font-size: var(--label-size); color: var(--on-surface-variant); }
+    .field-error-text { font-size: var(--label-size); color: var(--error); font-weight: 500; }
 
-    /* Notifications */
     .notice-strip {
-      display: flex;
-      align-items: flex-start;
-      gap: var(--space-sm);
-      padding: var(--space-md);
-      background: var(--surface-container);
-      border-left: 3px solid var(--primary);
-      font-size: 0.9375rem;
+      display: flex; align-items: flex-start; gap: var(--space-sm);
+      padding: var(--space-md); background: var(--surface-container);
+      border-left: 3px solid var(--primary); font-size: 0.9375rem;
     }
     .notice-strip.is-success { border-left-color: var(--positive); }
     .notice-strip.is-warning { border-left-color: var(--warning); }
     .notice-strip.is-error { border-left-color: var(--error); }
 
-    /* Tabs */
     .tabs-bar {
-      display: flex;
-      flex-wrap: wrap;
-      gap: var(--space-lg);
-      border-bottom: var(--rule);
-      margin-bottom: var(--space-lg);
+      display: flex; flex-wrap: wrap; gap: var(--space-lg);
+      border-bottom: var(--rule); margin-bottom: var(--space-lg);
     }
     .tab-btn {
-      position: relative;
-      display: inline-flex;
-      align-items: center;
-      gap: var(--space-xs);
-      min-height: 44px;
-      padding: var(--space-sm) var(--space-xs);
-      background: transparent;
-      border: 0;
-      border-bottom: 2px solid transparent;
-      margin-bottom: -1px;
-      color: var(--on-surface-variant);
-      font-size: var(--body-size);
-      font-weight: 400;
-      cursor: pointer;
-      transition: color var(--dur-micro) var(--ease-out),
-                  border-color var(--dur-micro) var(--ease-out);
+      position: relative; display: inline-flex; align-items: center;
+      gap: var(--space-xs); min-height: 44px; padding: var(--space-sm) var(--space-xs);
+      background: transparent; border: 0; border-bottom: 2px solid transparent;
+      margin-bottom: -1px; color: var(--on-surface-variant);
+      font-size: var(--body-size); cursor: pointer;
     }
     .tab-btn:hover { color: var(--on-surface); }
-    .tab-btn.is-active {
-      color: var(--on-surface);
-      font-weight: 600;
-      border-bottom-color: var(--primary);
-    }
+    .tab-btn.is-active { color: var(--on-surface); font-weight: 600; border-bottom-color: var(--primary); }
 
-    /* Asymmetric Login Grid */
     .login-grid {
-      display: grid;
-      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
-      gap: var(--space-lg);
-      align-items: start;
+      display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+      gap: var(--space-lg); align-items: start;
     }
-    .login-card {
-      background: var(--surface-container);
-      padding: var(--space-xl);
-    }
-    .login-form {
-      display: grid;
-      gap: var(--space-md);
-      max-width: 460px;
-    }
-    .guide-list {
-      list-style: none;
-      margin: 0;
-      padding: 0;
-      display: grid;
-      gap: var(--space-md);
-    }
-    .guide-list li {
-      padding-top: var(--space-sm);
-      border-top: var(--rule);
-      display: grid;
-      gap: var(--space-xs);
-    }
-    .guide-list li:first-child {
-      border-top: 0;
-      padding-top: 0;
-    }
+    .login-card { background: var(--surface-container); padding: var(--space-xl); }
+    .login-form { display: grid; gap: var(--space-md); max-width: 460px; }
+    .guide-list { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-md); }
+    .guide-list li { padding-top: var(--space-sm); border-top: var(--rule); display: grid; gap: var(--space-xs); }
+    .guide-list li:first-child { border-top: 0; padding-top: 0; }
 
-    /* KPI tiles */
-    .kpi-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(min(210px, 100%), 1fr));
-      gap: var(--space-md);
-    }
-    .kpi-tile {
-      background: var(--surface-container);
-      padding: var(--space-md);
-      display: grid;
-      gap: var(--space-xs);
-    }
-    .kpi-tile.is-primary {
-      border-bottom: var(--indicator);
-    }
-    .kpi-label {
-      font-size: var(--label-size);
-      color: var(--on-surface-variant);
-      font-weight: 500;
-    }
-    .kpi-value {
-      font-family: var(--font-label);
-      font-weight: 300;
-      font-size: 2rem;
-      line-height: 1.1;
-      color: var(--on-surface);
-    }
-    .kpi-sub {
-      font-size: var(--label-size);
-      color: var(--on-surface-variant);
-    }
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(210px, 100%), 1fr)); gap: var(--space-md); }
+    .kpi-tile { background: var(--surface-container); padding: var(--space-md); display: grid; gap: var(--space-xs); }
+    .kpi-tile.is-primary { border-bottom: var(--indicator); }
+    .kpi-label { font-size: var(--label-size); color: var(--on-surface-variant); font-weight: 500; }
+    .kpi-value { font-family: var(--font-label); font-weight: 300; font-size: 2rem; line-height: 1.1; color: var(--on-surface); }
+    .kpi-sub { font-size: var(--label-size); color: var(--on-surface-variant); }
 
-    /* Toolbar */
     .filter-toolbar {
-      background: var(--surface-container);
-      padding: var(--space-md);
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(min(175px, 100%), 1fr));
-      gap: var(--space-md);
-      align-items: end;
+      background: var(--surface-container); padding: var(--space-md);
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(min(175px, 100%), 1fr));
+      gap: var(--space-md); align-items: end;
     }
-    .toolbar-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: var(--space-sm);
-      align-items: end;
-    }
+    .toolbar-actions { display: flex; flex-wrap: wrap; gap: var(--space-sm); align-items: end; }
 
-    /* 13-Column Data Table */
     .table-meta-bar {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      align-items: center;
-      gap: var(--space-sm);
-      padding: var(--space-sm) 0;
-      border-bottom: var(--rule);
+      display: flex; flex-wrap: wrap; justify-content: space-between;
+      align-items: center; gap: var(--space-sm);
+      padding: var(--space-sm) 0; border-bottom: var(--rule);
     }
-    .table-wrap {
-      width: 100%;
-      overflow-x: auto;
-      border-bottom: var(--rule);
-      background: var(--background);
-    }
-    .data-table {
-      width: 100%;
-      min-width: 1360px;
-      border-collapse: collapse;
-      font-size: 0.875rem;
-    }
+    .table-wrap { width: 100%; overflow-x: auto; border-bottom: var(--rule); background: var(--background); }
+    .data-table { width: 100%; min-width: 1360px; border-collapse: collapse; font-size: 0.875rem; }
     .data-table thead th {
-      background: var(--surface-container-high);
-      color: var(--on-surface);
-      font-weight: 600;
-      font-size: 0.8125rem;
-      text-align: left;
-      padding: var(--space-sm) var(--space-sm);
-      border-bottom: 1px solid var(--outline);
-      white-space: nowrap;
-      position: sticky;
-      top: 0;
-      z-index: 2;
+      background: var(--surface-container-high); color: var(--on-surface);
+      font-weight: 600; font-size: 0.8125rem; text-align: left;
+      padding: var(--space-sm); border-bottom: 1px solid var(--outline);
+      white-space: nowrap; position: sticky; top: 0; z-index: 2;
     }
-    .data-table th.col-center,
-    .data-table td.col-center {
-      text-align: center;
-    }
-    .data-table tbody tr {
-      border-bottom: var(--rule);
-      transition: background-color var(--dur-micro) var(--ease-out);
-    }
-    .data-table tbody tr:nth-child(even) {
-      background: var(--surface-container-low);
-    }
-    .data-table tbody tr:hover {
-      background: var(--surface-container-high);
-    }
-    .data-table tbody tr.is-flagged {
-      box-shadow: inset 3px 0 0 var(--warning);
-    }
-    .data-table tbody tr.is-high-alert {
-      box-shadow: inset 3px 0 0 var(--error);
-    }
-    .data-table tbody tr.is-just-saved {
-      background: var(--positive-bg);
-    }
-    .data-table td {
-      padding: var(--space-xs) var(--space-sm);
-      vertical-align: middle;
-    }
+    .data-table th.col-center, .data-table td.col-center { text-align: center; }
+    .data-table tbody tr { border-bottom: var(--rule); transition: background-color var(--dur-micro) var(--ease-out); }
+    .data-table tbody tr:nth-child(even) { background: var(--surface-container-low); }
+    .data-table tbody tr:hover { background: var(--surface-container-high); }
+    .data-table tbody tr.is-flagged { box-shadow: inset 3px 0 0 var(--warning); }
+    .data-table tbody tr.is-high-alert { box-shadow: inset 3px 0 0 var(--error); }
+    .data-table tbody tr.is-just-saved { background: var(--positive-bg); }
+    .data-table td { padding: var(--space-xs) var(--space-sm); vertical-align: middle; }
 
-    /* Inline controls inside table */
-    .tbl-check-wrap {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 44px;
-      min-height: 44px;
-      cursor: pointer;
-    }
-    .tbl-check {
-      width: 18px;
-      height: 18px;
-      accent-color: var(--primary);
-      cursor: pointer;
-    }
+    .tbl-check-wrap { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; cursor: pointer; }
+    .tbl-check { width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; }
     .tbl-select {
-      height: 34px;
-      min-width: 96px;
-      padding: 0 var(--space-sm);
-      background: var(--background);
-      color: var(--on-surface);
-      border: 0;
-      border-bottom: var(--field-rule);
-      border-radius: 0;
-      font-size: 0.8125rem;
-      cursor: pointer;
+      height: 34px; min-width: 96px; padding: 0 var(--space-sm);
+      background: var(--background); color: var(--on-surface);
+      border: 0; border-bottom: var(--field-rule); border-radius: 0;
+      font-size: 0.8125rem; cursor: pointer;
     }
-    .tbl-select.has-missing {
-      background: var(--warning-bg);
-      font-weight: 600;
-      border-bottom-color: var(--warning);
-    }
+    .tbl-select.has-missing { background: var(--warning-bg); font-weight: 600; border-bottom-color: var(--warning); }
     .tbl-input {
-      width: 100%;
-      min-width: 140px;
-      height: 34px;
-      padding: 0 var(--space-sm);
-      background: var(--background);
-      color: var(--on-surface);
-      border: 0;
-      border-bottom: var(--field-rule);
-      border-radius: 0;
-      font-size: 0.8125rem;
+      width: 100%; min-width: 140px; height: 34px; padding: 0 var(--space-sm);
+      background: var(--background); color: var(--on-surface);
+      border: 0; border-bottom: var(--field-rule); border-radius: 0; font-size: 0.8125rem;
     }
-    .tbl-input:focus, .tbl-select:focus {
-      outline: 2px solid var(--focus);
-      outline-offset: -2px;
-    }
+    .tbl-input:focus, .tbl-select:focus { outline: 2px solid var(--focus); outline-offset: -2px; }
     .cell-nowrap { white-space: nowrap; }
-    .cell-time {
-      font-family: var(--font-label);
-      font-size: 0.75rem;
-      color: var(--on-surface-variant);
-      white-space: nowrap;
-    }
+    .cell-time { font-family: var(--font-label); font-size: 0.75rem; color: var(--on-surface-variant); white-space: nowrap; }
 
-    /* Admin Upload Dropzone */
-    .admin-import-grid {
-      display: grid;
-      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-      gap: var(--space-lg);
-      align-items: start;
-    }
+    .admin-import-grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: var(--space-lg); align-items: start; }
     .dropzone {
-      border: 2px dashed var(--outline);
-      background: var(--background);
-      padding: var(--space-xl) var(--space-lg);
-      display: grid;
-      gap: var(--space-sm);
-      justify-items: start;
-      transition: background-color var(--dur-micro) var(--ease-out),
-                  border-color var(--dur-micro) var(--ease-out);
+      border: 2px dashed var(--outline); background: var(--background);
+      padding: var(--space-xl) var(--space-lg); display: grid; gap: var(--space-sm); justify-items: start;
     }
-    .dropzone.is-dragover {
-      border-color: var(--primary);
-      background: var(--primary-container);
-    }
+    .dropzone.is-dragover { border-color: var(--primary); background: var(--primary-container); }
 
-    /* Simple bar visualization in Admin Analytics */
-    .bar-list {
-      display: grid;
-      gap: var(--space-sm);
-    }
-    .bar-row {
-      display: grid;
-      grid-template-columns: 110px minmax(0, 1fr) 72px;
-      gap: var(--space-sm);
-      align-items: center;
-      font-size: 0.875rem;
-    }
-    .bar-track {
-      height: 18px;
-      background: var(--surface-container-high);
-      position: relative;
-    }
-    .bar-fill {
-      height: 100%;
-      background: var(--data-1);
-      transition: width var(--dur-short) var(--ease-out);
-    }
+    .bar-list { display: grid; gap: var(--space-sm); }
+    .bar-row { display: grid; grid-template-columns: 110px minmax(0, 1fr) 72px; gap: var(--space-sm); align-items: center; font-size: 0.875rem; }
+    .bar-track { height: 18px; background: var(--surface-container-high); position: relative; }
+    .bar-fill { height: 100%; background: var(--data-1); transition: width var(--dur-short) var(--ease-out); }
     .bar-fill.is-warn { background: var(--data-4); }
 
-    /* Detail Drawer */
     .drawer-backdrop {
-      position: fixed;
-      inset: 0;
-      background: var(--backdrop-scrim);
-      z-index: 50;
-      display: flex;
-      justify-content: flex-end;
+      position: fixed; inset: 0; background: var(--backdrop-scrim);
+      z-index: 50; display: flex; justify-content: flex-end;
     }
     .drawer-panel {
-      width: min(560px, 100%);
-      height: 100%;
-      background: var(--background);
-      box-shadow: var(--shadow-2);
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
+      width: min(560px, 100%); height: 100%; background: var(--background);
+      box-shadow: var(--shadow-2); display: flex; flex-direction: column; overflow: hidden;
     }
     .drawer-header {
-      padding: var(--space-md) var(--space-lg);
-      background: var(--surface-container);
-      border-bottom: var(--rule);
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: var(--space-md);
+      padding: var(--space-md) var(--space-lg); background: var(--surface-container);
+      border-bottom: var(--rule); display: flex; justify-content: space-between; align-items: flex-start; gap: var(--space-md);
     }
-    .drawer-body {
-      flex: 1 1 auto;
-      overflow-y: auto;
-      padding: var(--space-lg);
-      display: grid;
-      gap: var(--space-lg);
-      align-content: start;
-    }
+    .drawer-body { flex: 1 1 auto; overflow-y: auto; padding: var(--space-lg); display: grid; gap: var(--space-lg); align-content: start; }
     .drawer-footer {
-      padding: var(--space-md) var(--space-lg);
-      background: var(--surface-container);
-      border-top: var(--rule);
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      align-items: center;
-      gap: var(--space-sm);
+      padding: var(--space-md) var(--space-lg); background: var(--surface-container);
+      border-top: var(--rule); display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: var(--space-sm);
     }
 
-    .check-card-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: var(--space-sm);
-    }
+    .check-card-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-sm); }
     .check-tile {
-      display: flex;
-      align-items: center;
-      gap: var(--space-sm);
-      min-height: 48px;
-      padding: var(--space-sm) var(--space-md);
-      background: var(--surface-container);
-      cursor: pointer;
-      border-bottom: 2px solid transparent;
+      display: flex; align-items: center; gap: var(--space-sm); min-height: 48px;
+      padding: var(--space-sm) var(--space-md); background: var(--surface-container);
+      cursor: pointer; border-bottom: 2px solid transparent;
     }
-    .check-tile.is-checked {
-      background: var(--primary-container);
-      border-bottom-color: var(--primary);
-    }
+    .check-tile.is-checked { background: var(--primary-container); border-bottom-color: var(--primary); }
 
-    .seg-grid {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: var(--space-xs);
-    }
+    .seg-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-xs); }
     .seg-btn {
-      min-height: 40px;
-      padding: var(--space-xs) var(--space-sm);
-      background: var(--surface-container);
-      color: var(--on-surface);
-      border: 1px solid var(--outline-variant);
-      border-radius: 0;
-      font-size: 0.875rem;
-      cursor: pointer;
+      min-height: 40px; padding: var(--space-xs) var(--space-sm);
+      background: var(--surface-container); color: var(--on-surface);
+      border: 1px solid var(--outline-variant); border-radius: 0; font-size: 0.875rem; cursor: pointer;
     }
-    .seg-btn.is-active {
-      background: var(--primary);
-      color: var(--on-primary);
-      border-color: var(--primary);
-      font-weight: 600;
-    }
+    .seg-btn.is-active { background: var(--primary); color: var(--on-primary); border-color: var(--primary); font-weight: 600; }
 
-    .chip-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: var(--space-xs);
-    }
+    .chip-row { display: flex; flex-wrap: wrap; gap: var(--space-xs); }
     .quick-chip {
-      min-height: 30px;
-      padding: 2px var(--space-sm);
-      background: var(--surface-container);
-      color: var(--on-surface-variant);
-      border: 1px solid var(--outline-variant);
-      border-radius: var(--rounded-full);
-      font-size: var(--label-size);
-      cursor: pointer;
+      min-height: 30px; padding: 2px var(--space-sm); background: var(--surface-container);
+      color: var(--on-surface-variant); border: 1px solid var(--outline-variant);
+      border-radius: var(--rounded-full); font-size: var(--label-size); cursor: pointer;
     }
-    .quick-chip:hover {
-      background: var(--primary-container);
-      color: var(--on-primary-container);
-      border-color: var(--primary);
-    }
+    .quick-chip:hover { background: var(--primary-container); color: var(--on-primary-container); border-color: var(--primary); }
 
-    /* Floating toast */
-    .toast-region {
-      position: fixed;
-      right: var(--space-lg);
-      bottom: var(--space-lg);
-      z-index: 70;
-      display: grid;
-      gap: var(--space-sm);
-      max-width: 380px;
-    }
+    .toast-region { position: fixed; right: var(--space-lg); bottom: var(--space-lg); z-index: 70; display: grid; gap: var(--space-sm); max-width: 380px; }
     .toast-item {
-      background: var(--background);
-      color: var(--on-surface);
-      padding: var(--space-md);
-      box-shadow: var(--shadow-2);
-      border-left: 3px solid var(--primary);
-      display: flex;
-      align-items: flex-start;
-      gap: var(--space-sm);
-      font-size: 0.875rem;
+      background: var(--background); color: var(--on-surface); padding: var(--space-md);
+      box-shadow: var(--shadow-2); border-left: 3px solid var(--primary);
+      display: flex; align-items: flex-start; gap: var(--space-sm); font-size: 0.875rem;
     }
     .toast-item.is-success { border-left-color: var(--positive); }
     .toast-item.is-error { border-left-color: var(--error); }
 
-    /* Empty state */
     .empty-state {
-      background: var(--surface-container);
-      padding: var(--space-xl);
-      display: grid;
-      gap: var(--space-sm);
-      justify-items: start;
-      border-left: 3px solid var(--outline);
+      background: var(--surface-container); padding: var(--space-xl);
+      display: grid; gap: var(--space-sm); justify-items: start; border-left: 3px solid var(--outline);
     }
-
     .hidden { display: none !important; }
 
-    /* Container queries */
-    .panel-container { container-type: inline-size; }
-    @container (max-width: 640px) {
-      .check-card-grid { grid-template-columns: 1fr; }
-      .seg-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    }
-
-    /* Mobile breakpoint */
     @media (max-width: 900px) {
-      .login-grid,
-      .admin-import-grid {
-        grid-template-columns: 1fr;
-      }
+      .login-grid, .admin-import-grid { grid-template-columns: 1fr; }
     }
     @media (max-width: 640px) {
-      .app-shell {
-        padding: var(--space-sm);
-        gap: var(--space-md);
-      }
+      .app-shell { padding: var(--space-sm); gap: var(--space-md); }
       .login-card { padding: var(--space-md); }
       .layer { padding: var(--space-md); }
       .bar-row { grid-template-columns: 80px minmax(0, 1fr) 56px; }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after {
-        animation-duration: 0.01ms !important;
-        transition-duration: 0.01ms !important;
-        scroll-behavior: auto !important;
-      }
     }
   </style>
 </head>
@@ -882,9 +360,11 @@
           <span class="mono">MIDTERM EARLY WARNING SYSTEM</span>
           <span>｜</span>
           <span id="header-roster-count" class="mono">全校名冊 0 筆</span>
+          <span>｜</span>
+          <span id="firebase-sync-status" class="sync-pill mono">Firebase 連線中...</span>
         </div>
         <h1 class="headline">期中<strong>預警系統</strong></h1>
-        <p class="subhead-lead">教師依代碼檢核任教班級與學生課堂表現；教務管理者可於後台匯入 XLSX 名冊並進行全校預警追蹤。</p>
+        <p class="subhead-lead">教師依代碼檢核任教班級與學生課堂表現；教務管理者可於後台匯入 XLSX 名冊並即時跨裝置追蹤全校預警狀況。</p>
       </div>
       <div class="session-bar">
         <div id="session-badge" class="session-badge is-idle">
@@ -912,12 +392,11 @@
           </button>
         </div>
 
-        <!-- Teacher Login Panel -->
         <div id="panel-login-teacher">
           <form class="login-form" onsubmit="event.preventDefault(); handleTeacherLogin();">
             <div class="field-group">
               <label for="input-teacher-code" class="field-label">教師代碼 / 課程代碼</label>
-              <input id="input-teacher-code" type="text" class="field-control mono" autocomplete="off" placeholder="例如 CH8105、EE0825" />
+              <input id="input-teacher-code" type="text" class="field-control mono" autocomplete="off" placeholder="請輸入您的教師或課程代碼" />
               <div class="field-hint">請輸入您的教師或課程代碼（不區分大小寫）；登入後將僅過濾並顯示您任教之班級與科目名冊。</div>
             </div>
             <div id="teacher-login-msg" class="field-error-text hidden" role="alert"></div>
@@ -928,22 +407,14 @@
               </button>
             </div>
           </form>
-          <div id="login-empty-notice" class="notice-strip is-warning" style="margin-top: var(--space-lg);">
-            <i data-lucide="info" aria-hidden="true"></i>
-            <div>
-              <strong>資料庫目前為空白（預設無載入範例資料）</strong><br>
-              請由教務管理者切換至「管理者後台登入」，下載 XLSX 匯入範本並上傳全校名冊後，教師即可依代碼登入檢核。
-            </div>
-          </div>
         </div>
 
-        <!-- Admin Login Panel -->
         <div id="panel-login-admin" class="hidden">
           <form class="login-form" onsubmit="event.preventDefault(); handleAdminLogin();">
             <div class="field-group">
               <label for="input-admin-password" class="field-label">管理者密碼</label>
               <input id="input-admin-password" type="password" class="field-control mono" autocomplete="off" placeholder="請輸入管理者密碼" />
-              <div class="field-hint">驗證通過後可進入後台進行 .xlsx 檔案匯入、下載匯入範本及全校 13 欄名冊管理。</div>
+              <div class="field-hint">驗證通過後可進入後台進行 .xlsx 檔案匯入、下載匯入範本、全校 13 欄管理與批次補登代碼。</div>
             </div>
             <div id="admin-login-msg" class="field-error-text hidden" role="alert"></div>
             <div>
@@ -958,13 +429,13 @@
 
       <aside class="layer">
         <div class="section-head">
-          <h2 class="small-heading">系統作業規範與功能摘要</h2>
-          <span class="code-tag">13 欄標準架構</span>
+          <h2 class="small-heading">系統作業規範與雲端同步說明</h2>
+          <span class="code-tag">Firebase 即時同步</span>
         </div>
         <ul class="guide-list">
           <li>
-            <strong>1. 代碼過濾與權限隔離</strong>
-            <span class="field-hint">教師以代碼（如 <span class="mono">CH8105</span>、<span class="mono">EE0825</span>）登入，系統自動比對單科與合授課程代碼，僅呈現本人任教名冊。</span>
+            <strong>1. 跨裝置雲端即時同步</strong>
+            <span class="field-hint">已串接 Firebase Cloud Firestore（專案 homework-warning），教師填報與管理者匯入之異動皆會即時同步至雲端資料庫。</span>
           </li>
           <li>
             <strong>2. 完整 13 項資料庫欄位</strong>
@@ -975,8 +446,8 @@
             <span class="field-hint">「已繳交」勾選框緊鄰「無作業」之後、「未繳交」之前；「未繳交」提供 0 份至 6 份以上下拉選取，儲存時自動紀錄時間與登入代碼。</span>
           </li>
           <li>
-            <strong>4. XLSX 無範例空白啟動與匯入</strong>
-            <span class="field-hint">預設不載入任何範例資料；管理者可下載標準 5 欄（班級、學號、姓名、科目、教師）XLSX 範本並直接匯入建置全校名冊。</span>
+            <strong>4. 支援純 5 欄 XLSX 匯入與內建備援</strong>
+            <span class="field-hint">Excel 僅需「班級、學號、姓名、科目、教師」即可匯入，亦可一鍵匯出為內建程式碼備份。</span>
           </li>
         </ul>
       </aside>
@@ -998,7 +469,7 @@
         <div class="kpi-tile">
           <div class="kpi-label">未繳交預警人次</div>
           <div id="t-kpi-missing" class="kpi-value">0</div>
-          <div class="kpi-sub">未繳交 1 份以上</div>
+          <div id="t-kpi-missing-sub" class="kpi-sub">未繳交 1 份以上</div>
         </div>
         <div class="kpi-tile">
           <div class="kpi-label">睡覺 / 無作業標記</div>
@@ -1049,7 +520,7 @@
 
       <section aria-label="教師預警名冊資料表">
         <div class="table-meta-bar">
-          <div class="small-heading">任教學生預警名冊（支援表內直接編輯或點選「詳情」）</div>
+          <div class="small-heading">任教學生預警名冊（支援表內直接編輯或點選「詳情」，變更將即時同步至 Firebase 雲端）</div>
           <div id="t-table-count" class="mono field-hint">顯示 0 / 0 筆</div>
         </div>
         <div id="t-table-empty" class="empty-state hidden">
@@ -1091,7 +562,7 @@
         </button>
         <button id="tab-admin-import" type="button" class="tab-btn" role="tab" aria-selected="false" onclick="switchAdminTab('import')">
           <i data-lucide="upload" aria-hidden="true"></i>
-          <span>XLSX 資料匯入與範本</span>
+          <span>XLSX 資料匯入與備份</span>
         </button>
         <button id="tab-admin-analytics" type="button" class="tab-btn" role="tab" aria-selected="false" onclick="switchAdminTab('analytics')">
           <i data-lucide="bar-chart-3" aria-hidden="true"></i>
@@ -1115,12 +586,12 @@
           <div class="kpi-tile">
             <div class="kpi-label">作業缺交預警數</div>
             <div id="a-kpi-missing" class="kpi-value">0</div>
-            <div class="kpi-sub">未繳交 1 份以上</div>
+            <div id="a-kpi-missing-sub" class="kpi-sub">未繳交 1 份以上</div>
           </div>
           <div class="kpi-tile">
             <div class="kpi-label">待補教師代碼筆數</div>
             <div id="a-kpi-nocode" class="kpi-value">0</div>
-            <div class="kpi-sub">無代碼將無法由教師篩選登入</div>
+            <div id="a-kpi-nocode-sub" class="kpi-sub">無代碼將無法由教師篩選登入</div>
           </div>
         </div>
 
@@ -1166,20 +637,26 @@
               <i data-lucide="file-spreadsheet" aria-hidden="true"></i>
               <span>匯出全校 XLSX</span>
             </button>
-            <button type="button" class="btn btn-tertiary btn-compact" onclick="exportCurrentViewCsv('admin')">
-              <i data-lucide="download" aria-hidden="true"></i>
-              <span>匯出 CSV</span>
+            <button type="button" class="btn btn-tertiary btn-compact" onclick="copyBuiltinCodeSnippet()">
+              <i data-lucide="code-2" aria-hidden="true"></i>
+              <span>複製內建資料碼</span>
             </button>
           </div>
         </div>
 
         <div id="a-empty-banner" class="empty-state hidden">
-          <strong>目前全校名冊為空白（預設無載入範例資料）</strong>
-          <span class="field-hint">請切換至「XLSX 資料匯入與範本」下載標準範本並匯入包含「班級、學號、姓名、科目、教師」的 Excel (.xlsx) 檔案。</span>
-          <button type="button" class="btn btn-primary btn-compact" onclick="switchAdminTab('import')">
-            <i data-lucide="upload" aria-hidden="true"></i>
-            <span>前往匯入 XLSX 檔案</span>
-          </button>
+          <strong>目前全校名冊為空白</strong>
+          <span class="field-hint">您可以還原系統預設內建名冊，或切換至「XLSX 資料匯入與備份」匯入新的 Excel (.xlsx) 檔案。</span>
+          <div class="toolbar-actions">
+            <button type="button" class="btn btn-primary btn-compact" onclick="handleResetToBuiltin(this)">
+              <i data-lucide="rotate-ccw" aria-hidden="true"></i>
+              <span>還原內建預設資料</span>
+            </button>
+            <button type="button" class="btn btn-secondary btn-compact" onclick="switchAdminTab('import')">
+              <i data-lucide="upload" aria-hidden="true"></i>
+              <span>前往匯入 XLSX 檔案</span>
+            </button>
+          </div>
         </div>
 
         <div id="a-table-section">
@@ -1187,9 +664,13 @@
             <div class="small-heading">全校 13 欄預警總表（管理者可直接編輯、展開詳情或刪除單筆）</div>
             <div class="toolbar-actions">
               <span id="a-table-count" class="mono field-hint">顯示 0 / 0 筆</span>
+              <button type="button" class="btn btn-ghost btn-compact" onclick="handleResetToBuiltin(this)">
+                <i data-lucide="rotate-ccw" aria-hidden="true"></i>
+                <span>還原內建資料</span>
+              </button>
               <button id="btn-clear-all" type="button" class="btn btn-ghost btn-compact" onclick="handleClearAllRecords(this)">
                 <i data-lucide="trash-2" aria-hidden="true"></i>
-                <span>清空全校名冊</span>
+                <span>清空目前名冊</span>
               </button>
             </div>
           </div>
@@ -1234,6 +715,20 @@
               <button type="button" class="btn btn-secondary" onclick="downloadImportTemplateXlsx()">
                 <i data-lucide="file-down" aria-hidden="true"></i>
                 <span>下載 XLSX 匯入範本</span>
+              </button>
+            </div>
+
+            <div class="section-head" style="margin-top: var(--space-sm); margin-bottom: 0;">
+              <h2 class="small-heading">備份為靜態內建資料碼</h2>
+              <span class="code-tag">離線備援</span>
+            </div>
+            <p class="field-hint" style="margin: 0;">
+              匯入新的 XLSX 檔案並確認代碼無誤後，除自動寫入 Firebase 雲端外，亦可點擊下方按鈕複製 JSON 陣列覆蓋 <code>index.html</code> 內的 <code>BUILTIN_ROSTER_DATA</code> 作為靜態備援。
+            </p>
+            <div>
+              <button type="button" class="btn btn-tertiary btn-compact" onclick="copyBuiltinCodeSnippet()">
+                <i data-lucide="copy" aria-hidden="true"></i>
+                <span>複製目前全校名冊為內建程式碼</span>
               </button>
             </div>
 
@@ -1489,95 +984,220 @@
     </div>
   </div>
 
-  <!-- TOAST REGION -->
   <div id="toast-region" class="toast-region" aria-live="polite"></div>
 
-  <api-shim></api-shim>
-  <script>
+  <script type="module">
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-analytics.js";
+    import {
+      getFirestore,
+      collection,
+      doc,
+      setDoc,
+      deleteDoc,
+      onSnapshot,
+      writeBatch
+    } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyBEEKeN9pHYKqfc8ig8aaLmF2c1Od7IyEk",
+      authDomain: "homework-warning.firebaseapp.com",
+      projectId: "homework-warning",
+      storageBucket: "homework-warning.firebasestorage.app",
+      messagingSenderId: "751055836821",
+      appId: "1:751055836821:web:a1a7bf99bf1f807da86d9c",
+      measurementId: "G-6H2YXCFF3Z"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    let analytics = null;
+    try {
+      analytics = getAnalytics(app);
+    } catch (e) {
+      // Analytics skipped in unsupported environments
+    }
+    const db = getFirestore(app);
+    const ROSTER_COLLECTION = "midterm_warning_roster";
+
+    // =========================================================================
+    // 1. 內建預設全校名冊資料 (雲端尚未建檔時自動初始化寫入，亦可作為離線備援)
+    // =========================================================================
+    const BUILTIN_ROSTER_DATA = [
+      { className: `一機甲`, studentId: `513101`, studentName: `林冠宇`, subject: `國語文`, teacherName: `郭老師`, teacherCodes: [`CH8105`] },
+      { className: `一機甲`, studentId: `513102`, studentName: `陳宥廷`, subject: `國語文`, teacherName: `郭老師`, teacherCodes: [`CH8105`] },
+      { className: `一機甲`, studentId: `513103`, studentName: `張雅筑`, subject: `國語文`, teacherName: `郭老師`, teacherCodes: [`CH8105`] },
+      { className: `一機甲`, studentId: `513104`, studentName: `王柏翰`, subject: `國語文`, teacherName: `郭老師`, teacherCodes: [`CH8105`] },
+      { className: `一機甲`, studentId: `513101`, studentName: `林冠宇`, subject: `機械基礎實習`, teacherName: `賴老師,李老師`, teacherCodes: [`EE0825`, `MI3133`] },
+      { className: `一機甲`, studentId: `513102`, studentName: `陳宥廷`, subject: `機械基礎實習`, teacherName: `賴老師,李老師`, teacherCodes: [`EE0825`, `MI3133`] },
+      { className: `一機甲`, studentId: `513103`, studentName: `張雅筑`, subject: `機械基礎實習`, teacherName: `賴老師,李老師`, teacherCodes: [`EE0825`, `MI3133`] },
+      { className: `二電乙`, studentId: `413201`, studentName: `黃子軒`, subject: `基本電學`, teacherName: `賴老師`, teacherCodes: [`EE0825`] },
+      { className: `二電乙`, studentId: `413202`, studentName: `吳欣怡`, subject: `基本電學`, teacherName: `賴老師`, teacherCodes: [`EE0825`] },
+      { className: `二電乙`, studentId: `413203`, studentName: `周宇翔`, subject: `基本電學`, teacherName: `賴老師`, teacherCodes: [`EE0825`] },
+      { className: `三室設`, studentId: `313301`, studentName: `蔡佳蓉`, subject: `國語文`, teacherName: `郭老師`, teacherCodes: [`CH8105`] },
+      { className: `三室設`, studentId: `313302`, studentName: `許哲瑋`, subject: `國語文`, teacherName: `郭老師`, teacherCodes: [`CH8105`] }
+    ];
+
+    const STORAGE_DB_KEY = `midterm_warning_fb_cache_v1`;
+    const STORAGE_SESSION_KEY = `midterm_warning_fb_session_v1`;
     const ADMIN_PASSWORD = `ssivs210`;
     const MISSING_OPTIONS = [`0 份`, `1 份`, `2 份`, `3 份`, `4 份`, `5 份`, `6 份以上`];
 
     const appState = {
       records: [],
       session: {
-        role: null, // 'teacher' | 'admin' | null
+        role: null,
         code: ``
       },
       pendingImport: null,
       activeDetailId: null,
-      currentFilteredIds: []
+      currentFilteredIds: [],
+      firebaseOnline: false,
+      seededInitial: false
     };
 
+    function setSyncStatus(text, isOnline) {
+      appState.firebaseOnline = isOnline;
+      const el = document.getElementById(`firebase-sync-status`);
+      if (!el) return;
+      el.textContent = text;
+      el.classList.remove(`is-online`, `is-offline`);
+      el.classList.add(isOnline ? `is-online` : `is-offline`);
+    }
+
     // =========================================================================
-    // INITIALIZATION & PERSISTENCE (notebookAppApi)
+    // 2. INITIALIZATION & FIREBASE CLOUD REALTIME SYNC
     // =========================================================================
-    async function initApp() {
+    function initApp() {
       try {
-        if (window.notebookAppApi && typeof window.notebookAppApi.getAppState === `function`) {
-          const saved = await window.notebookAppApi.getAppState();
-          if (saved && Array.isArray(saved.r)) {
-            appState.records = saved.r.map(unpackRecord);
-          } else if (saved && Array.isArray(saved.records)) {
-            appState.records = saved.records.map(normalizeRecord);
-          }
-          if (saved && saved.session && saved.session.role) {
-            appState.session = {
-              role: saved.session.role,
-              code: String(saved.session.code || ``)
-            };
-          }
+        const rawCache = localStorage.getItem(STORAGE_DB_KEY);
+        if (rawCache) {
+          const parsed = JSON.parse(rawCache);
+          if (Array.isArray(parsed)) appState.records = parsed.map(normalizeRecord);
+        } else {
+          appState.records = BUILTIN_ROSTER_DATA.map(function (item, idx) {
+            return normalizeRecord(Object.assign({ id: `builtin_${idx + 1}` }, item));
+          });
+        }
+
+        const rawSession = sessionStorage.getItem(STORAGE_SESSION_KEY);
+        if (rawSession) {
+          const s = JSON.parse(rawSession);
+          if (s && s.role) appState.session = { role: s.role, code: String(s.code || ``) };
         }
       } catch (err) {
-        showToast(`讀取雲端儲存狀態時發生錯誤，已以空白資料啟動。`, `error`);
+        // Ignore cache read error
       }
 
       renderAll();
-      if (window.lucide && typeof window.lucide.createIcons === `function`) {
-        window.lucide.createIcons();
-      }
-      if (window.notebookAppApi && typeof window.notebookAppApi.notifyAppReady === `function`) {
-        window.notebookAppApi.notifyAppReady();
+      refreshIcons();
+
+      // Subscribe to Firebase Firestore realtime updates
+      try {
+        const colRef = collection(db, ROSTER_COLLECTION);
+        onSnapshot(colRef, async function (snapshot) {
+          setSyncStatus(`Firebase 雲端已連線`, true);
+
+          if (snapshot.empty && !appState.seededInitial && BUILTIN_ROSTER_DATA.length > 0) {
+            appState.seededInitial = true;
+            const initialList = BUILTIN_ROSTER_DATA.map(function (item, idx) {
+              return normalizeRecord(Object.assign({ id: `builtin_${idx + 1}` }, item));
+            });
+            await syncAllRecordsToFirestore(initialList, []);
+            return;
+          }
+
+          appState.seededInitial = true;
+          const cloudList = [];
+          snapshot.forEach(function (docSnap) {
+            cloudList.push(normalizeRecord(Object.assign({ id: docSnap.id }, docSnap.data())));
+          });
+
+          cloudList.sort(function (a, b) {
+            return a.className.localeCompare(b.className, `zh-Hant`) ||
+                   a.studentId.localeCompare(b.studentId) ||
+                   a.subject.localeCompare(b.subject, `zh-Hant`);
+          });
+
+          appState.records = cloudList;
+          saveLocalCache();
+          renderAll();
+        }, function (err) {
+          setSyncStatus(`雲端連線受限 (本機模式)`, false);
+          showToast(`Firebase Firestore 讀取受限（請確認 Console 安全規則已開啟）：${err.message}`, `error`);
+        });
+      } catch (err) {
+        setSyncStatus(`離線本機模式`, false);
       }
     }
 
-    function packRecord(rec) {
-      return [
-        rec.id,
-        rec.className,
-        rec.studentId,
-        rec.studentName,
-        rec.subject,
-        rec.teacherName,
-        rec.teacherCodes.join(`,`),
-        rec.noHomework ? 1 : 0,
-        rec.submitted ? 1 : 0,
-        rec.missingCount,
-        rec.sleeping ? 1 : 0,
-        rec.missingContent,
-        rec.suggestions,
-        rec.lastModifiedAt,
-        rec.lastModifiedBy
-      ];
+    function saveLocalCache() {
+      try {
+        localStorage.setItem(STORAGE_DB_KEY, JSON.stringify(appState.records));
+        if (appState.session.role) {
+          sessionStorage.setItem(STORAGE_SESSION_KEY, JSON.stringify(appState.session));
+        } else {
+          sessionStorage.removeItem(STORAGE_SESSION_KEY);
+        }
+      } catch (err) {
+        // Ignore quota error
+      }
     }
 
-    function unpackRecord(arr) {
-      return normalizeRecord({
-        id: arr[0],
-        className: arr[1],
-        studentId: arr[2],
-        studentName: arr[3],
-        subject: arr[4],
-        teacherName: arr[5],
-        teacherCodes: String(arr[6] || ``).split(`,`).filter(Boolean),
-        noHomework: Boolean(arr[7]),
-        submitted: Boolean(arr[8]),
-        missingCount: arr[9] || `0 份`,
-        sleeping: Boolean(arr[10]),
-        missingContent: arr[11] || ``,
-        suggestions: arr[12] || ``,
-        lastModifiedAt: arr[13] || ``,
-        lastModifiedBy: arr[14] || ``
-      });
+    async function syncSingleRecordToFirestore(rec) {
+      saveLocalCache();
+      try {
+        const ref = doc(db, ROSTER_COLLECTION, rec.id);
+        await setDoc(ref, Object.assign({}, rec), { merge: true });
+      } catch (err) {
+        setSyncStatus(`雲端寫入失敗`, false);
+        showToast(`雲端同步失敗（請檢查 Firestore 權限規則）：${err.message}`, `error`);
+      }
+    }
+
+    async function deleteSingleRecordFromFirestore(id) {
+      saveLocalCache();
+      try {
+        await deleteDoc(doc(db, ROSTER_COLLECTION, id));
+      } catch (err) {
+        showToast(`雲端刪除失敗：${err.message}`, `error`);
+      }
+    }
+
+    async function syncAllRecordsToFirestore(newList, oldIds) {
+      saveLocalCache();
+      try {
+        const newIdSet = new Set(newList.map(function (r) { return r.id; }));
+        const toDelete = (oldIds || []).filter(function (id) { return !newIdSet.has(id); });
+
+        // Firestore writeBatch limit is 500 ops per batch
+        const ops = [];
+        for (let i = 0; i < toDelete.length; i++) {
+          ops.push({ type: `delete`, id: toDelete[i] });
+        }
+        for (let i = 0; i < newList.length; i++) {
+          ops.push({ type: `set`, rec: newList[i] });
+        }
+
+        for (let offset = 0; offset < ops.length; offset += 450) {
+          const chunk = ops.slice(offset, offset + 450);
+          const batch = writeBatch(db);
+          for (let j = 0; j < chunk.length; j++) {
+            const op = chunk[j];
+            if (op.type === `delete`) {
+              batch.delete(doc(db, ROSTER_COLLECTION, op.id));
+            } else {
+              batch.set(doc(db, ROSTER_COLLECTION, op.rec.id), Object.assign({}, op.rec));
+            }
+          }
+          await batch.commit();
+        }
+      } catch (err) {
+        setSyncStatus(`雲端批次寫入失敗`, false);
+        showToast(`雲端批次同步失敗（請檢查 Firestore 權限規則）：${err.message}`, `error`);
+      }
     }
 
     function normalizeRecord(raw) {
@@ -1607,22 +1227,8 @@
       return `r_` + Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
     }
 
-    async function persistState() {
-      if (!window.notebookAppApi || typeof window.notebookAppApi.setAppState !== `function`) return;
-      const payload = {
-        v: 1,
-        session: appState.session,
-        r: appState.records.map(packRecord)
-      };
-      try {
-        await window.notebookAppApi.setAppState(payload);
-      } catch (err) {
-        showToast(`資料已於本頁更新，但同步儲存空間超出上限（256 KiB），建議匯出 XLSX 備份。`, `error`);
-      }
-    }
-
     // =========================================================================
-    // UTILITIES
+    // 3. UTILITIES
     // =========================================================================
     function formatNowTimestamp() {
       const d = new Date();
@@ -1636,9 +1242,7 @@
       const tokens = s.split(/[,，、;\s/()（）]+/).map(function (t) { return t.trim().toUpperCase(); }).filter(Boolean);
       const found = [];
       for (let i = 0; i < tokens.length; i++) {
-        if (/^[A-Z0-9]{3,12}$/.test(tokens[i])) {
-          found.push(tokens[i]);
-        }
+        if (/^[A-Z0-9]{3,12}$/.test(tokens[i])) found.push(tokens[i]);
       }
       return Array.from(new Set(found));
     }
@@ -1695,7 +1299,7 @@
     }
 
     // =========================================================================
-    // LOGIN & NAVIGATION
+    // 4. LOGIN & NAVIGATION
     // =========================================================================
     function switchLoginTab(tab) {
       const tBtn = document.getElementById(`tab-login-teacher`);
@@ -1722,12 +1326,12 @@
       msgEl.classList.add(`hidden`);
 
       if (!code) {
-        msgEl.textContent = `請輸入教師代碼或課程代碼（例如 CH8105、EE0825）。`;
+        msgEl.textContent = `請輸入教師代碼或課程代碼。`;
         msgEl.classList.remove(`hidden`);
         return;
       }
       if (appState.records.length === 0) {
-        msgEl.textContent = `系統目前尚未匯入任何名冊資料（預設無載入範例資料），請先由管理者登入後台匯入 .xlsx 檔案。`;
+        msgEl.textContent = `目前名冊為空白，請先由管理者登入後台匯入 .xlsx 檔案或還原內建預設資料。`;
         msgEl.classList.remove(`hidden`);
         return;
       }
@@ -1737,14 +1341,14 @@
         const noCodeCount = appState.records.filter(function (r) { return r.teacherCodes.length === 0; }).length;
         msgEl.textContent = noCodeCount > 0
           ? `查無代碼「${code}」所屬的班級或學生名冊（目前有 ${noCodeCount} 筆資料尚未設定教師代碼，請通知管理者補登代碼）。`
-          : `查無代碼「${code}」所屬的班級或學生名冊，請確認代碼是否正確或聯繫教務處管理者補登代碼。`;
+          : `查無代碼「${code}」所屬的班級或學生名冊，請確認代碼是否正確。`;
         msgEl.classList.remove(`hidden`);
         return;
       }
 
       appState.session = { role: `teacher`, code: code };
       input.value = ``;
-      persistState();
+      saveLocalCache();
       renderAll();
       showToast(`已登入教師代碼 ${code}（共 ${matched.length} 筆任教名冊）`, `success`);
     }
@@ -1765,7 +1369,7 @@
 
       appState.session = { role: `admin`, code: `ADMIN` };
       input.value = ``;
-      persistState();
+      saveLocalCache();
       renderAll();
       showToast(`已登入管理者後台`, `success`);
     }
@@ -1773,7 +1377,7 @@
     function handleLogout() {
       closeDetailDrawer();
       appState.session = { role: null, code: `` };
-      persistState();
+      saveLocalCache();
       renderAll();
       showToast(`已登出系統`, `success`);
     }
@@ -1791,9 +1395,7 @@
         }
         if (panel) panel.classList.toggle(`hidden`, !active);
       }
-      if (tab === `analytics`) {
-        renderAdminAnalytics();
-      }
+      if (tab === `analytics`) renderAdminAnalytics();
     }
 
     function getRecordsForTeacherCode(code) {
@@ -1805,18 +1407,11 @@
     }
 
     // =========================================================================
-    // RENDERING VIEWS
+    // 5. RENDERING VIEWS
     // =========================================================================
     function renderAll() {
       const countEl = document.getElementById(`header-roster-count`);
-      if (countEl) {
-        countEl.textContent = `全校名冊 ${appState.records.length} 筆`;
-      }
-
-      const emptyNotice = document.getElementById(`login-empty-notice`);
-      if (emptyNotice) {
-        emptyNotice.classList.toggle(`hidden`, appState.records.length > 0);
-      }
+      if (countEl) countEl.textContent = `全校名冊 ${appState.records.length} 筆`;
 
       const badge = document.getElementById(`session-badge`);
       const badgeText = document.getElementById(`session-badge-text`);
@@ -1824,7 +1419,6 @@
       const vLogin = document.getElementById(`view-login`);
       const vTeacher = document.getElementById(`view-teacher`);
       const vAdmin = document.getElementById(`view-admin`);
-
       if (!badge || !badgeText || !logoutBtn || !vLogin || !vTeacher || !vAdmin) return;
 
       const role = appState.session.role;
@@ -1846,9 +1440,6 @@
         renderAdminKpis();
         renderAdminTable();
         renderAdminAnalytics();
-        if (appState.records.length === 0) {
-          switchAdminTab(`import`);
-        }
       } else {
         badge.classList.add(`is-idle`);
         badgeText.textContent = `尚未登入驗證`;
@@ -1898,10 +1489,7 @@
       const behavior = list.filter(function (r) { return r.sleeping || r.noHomework; }).length;
       const rate = total > 0 ? Math.round((edited / total) * 100) : 0;
 
-      const setTxt = function (id, txt) {
-        const el = document.getElementById(id);
-        if (el) el.textContent = txt;
-      };
+      const setTxt = function (id, txt) { const el = document.getElementById(id); if (el) el.textContent = txt; };
       setTxt(`t-kpi-total`, String(total));
       setTxt(`t-kpi-code`, `代碼：${appState.session.code}`);
       setTxt(`t-kpi-edited`, String(edited));
@@ -1919,10 +1507,7 @@
       const noCode = list.filter(function (r) { return r.teacherCodes.length === 0; }).length;
       const rate = total > 0 ? Math.round((edited / total) * 100) : 0;
 
-      const setTxt = function (id, txt) {
-        const el = document.getElementById(id);
-        if (el) el.textContent = txt;
-      };
+      const setTxt = function (id, txt) { const el = document.getElementById(id); if (el) el.textContent = txt; };
       setTxt(`a-kpi-total`, String(total));
       setTxt(`a-kpi-classes`, `涵蓋 ${classCount} 個班級`);
       setTxt(`a-kpi-edited`, String(edited));
@@ -1997,7 +1582,7 @@
       emptyEl.classList.toggle(`hidden`, filtered.length > 0);
       wrapEl.classList.toggle(`hidden`, filtered.length === 0);
 
-      tbody.innerHTML = buildTableRowsHtml(filtered, `teacher`);
+      tbody.innerHTML = buildTableRowsHtml(filtered);
       refreshIcons();
     }
 
@@ -2016,11 +1601,11 @@
       tableSection.classList.toggle(`hidden`, all.length === 0);
       countEl.textContent = `顯示 ${filtered.length} / ${all.length} 筆`;
 
-      tbody.innerHTML = buildTableRowsHtml(filtered, `admin`);
+      tbody.innerHTML = buildTableRowsHtml(filtered);
       refreshIcons();
     }
 
-    function buildTableRowsHtml(records, mode) {
+    function buildTableRowsHtml(records) {
       if (records.length === 0) {
         return `<tr><td colspan="14" style="padding: var(--space-lg); text-align: center; color: var(--on-surface-variant);">無符合條件之資料</td></tr>`;
       }
@@ -2087,7 +1672,7 @@
     }
 
     // =========================================================================
-    // INLINE EDITING & AUDIT TRAIL
+    // 6. INLINE EDITING & AUDIT TRAIL
     // =========================================================================
     function findRecordById(id) {
       for (let i = 0; i < appState.records.length; i++) {
@@ -2096,7 +1681,7 @@
       return null;
     }
 
-    function handleInlineChange(id, field, value) {
+    async function handleInlineChange(id, field, value) {
       const rec = findRecordById(id);
       if (!rec) return;
 
@@ -2110,7 +1695,6 @@
       rec.lastModifiedAt = formatNowTimestamp();
       rec.lastModifiedBy = appState.session.code || `USER`;
 
-      // Update row DOM in-place so focus is never lost when tabbing across cells
       const timeEl = document.getElementById(`time-${id}`);
       const byEl = document.getElementById(`by-${id}`);
       const rowEl = document.getElementById(`row-${id}`);
@@ -2122,19 +1706,17 @@
         if (hasMissing && rec.sleeping) rowEl.classList.add(`is-high-alert`);
         else if (hasMissing || rec.sleeping || rec.noHomework) rowEl.classList.add(`is-flagged`);
         rowEl.classList.add(`is-just-saved`);
-        setTimeout(function () {
-          if (rowEl) rowEl.classList.remove(`is-just-saved`);
-        }, 700);
+        setTimeout(function () { if (rowEl) rowEl.classList.remove(`is-just-saved`); }, 700);
       }
 
       if (appState.session.role === `teacher`) renderTeacherKpis();
       if (appState.session.role === `admin`) renderAdminKpis();
 
-      persistState();
+      await syncSingleRecordToFirestore(rec);
     }
 
     // =========================================================================
-    // DETAIL DRAWER EDITING
+    // 7. DETAIL DRAWER EDITING
     // =========================================================================
     function openDetailDrawer(id) {
       const rec = findRecordById(id);
@@ -2191,9 +1773,7 @@
     }
 
     function handleDrawerBackdropClick(ev) {
-      if (ev.target && ev.target.id === `detail-drawer`) {
-        closeDetailDrawer();
-      }
+      if (ev.target && ev.target.id === `detail-drawer`) closeDetailDrawer();
     }
 
     function syncDetailTileStyles() {
@@ -2205,9 +1785,7 @@
       for (let i = 0; i < pairs.length; i++) {
         const chk = document.getElementById(pairs[i][0]);
         const tile = document.getElementById(pairs[i][1]);
-        if (chk && tile) {
-          tile.classList.toggle(`is-checked`, chk.checked);
-        }
+        if (chk && tile) tile.classList.toggle(`is-checked`, chk.checked);
       }
     }
 
@@ -2221,22 +1799,17 @@
       }
     }
 
-    function syncDetailMissingSelect(val) {
-      setDetailMissing(val);
-    }
+    function syncDetailMissingSelect(val) { setDetailMissing(val); }
 
     function appendQuickText(targetId, snippet) {
       const el = document.getElementById(targetId);
       if (!el) return;
       const cur = el.value.trim();
-      if (!cur) {
-        el.value = snippet;
-      } else if (cur.indexOf(snippet) < 0) {
-        el.value = `${cur}；${snippet}`;
-      }
+      if (!cur) el.value = snippet;
+      else if (cur.indexOf(snippet) < 0) el.value = `${cur}；${snippet}`;
     }
 
-    function saveDetailDrawer() {
+    async function saveDetailDrawer() {
       const rec = findRecordById(appState.activeDetailId);
       if (!rec) return;
 
@@ -2248,8 +1821,7 @@
       rec.suggestions = document.getElementById(`d-suggestions`).value.trim();
 
       if (appState.session.role === `admin`) {
-        const rawCodes = document.getElementById(`d-codes-input`).value;
-        rec.teacherCodes = parseCodes(rawCodes);
+        rec.teacherCodes = parseCodes(document.getElementById(`d-codes-input`).value);
       }
 
       rec.lastModifiedAt = formatNowTimestamp();
@@ -2258,7 +1830,6 @@
       document.getElementById(`d-last-time`).textContent = rec.lastModifiedAt;
       document.getElementById(`d-last-by`).textContent = rec.lastModifiedBy;
 
-      persistState();
       if (appState.session.role === `teacher`) {
         renderTeacherKpis();
         renderTeacherTable();
@@ -2266,7 +1837,9 @@
         renderAdminKpis();
         renderAdminTable();
       }
-      showToast(`已儲存 ${rec.studentName}（${rec.subject}）預警紀錄`, `success`);
+
+      await syncSingleRecordToFirestore(rec);
+      showToast(`已儲存並同步 ${rec.studentName}（${rec.subject}）預警紀錄`, `success`);
     }
 
     function navigateDetailRecord(delta) {
@@ -2277,7 +1850,7 @@
       }
     }
 
-    function deleteDetailRecord(btn) {
+    async function deleteDetailRecord(btn) {
       if (appState.session.role !== `admin`) return;
       if (btn.dataset.armed !== `true`) {
         btn.dataset.armed = `true`;
@@ -2287,36 +1860,96 @@
       const targetId = appState.activeDetailId;
       appState.records = appState.records.filter(function (r) { return r.id !== targetId; });
       closeDetailDrawer();
-      persistState();
       renderAll();
-      showToast(`已刪除該筆學生課程紀錄`, `success`);
+      await deleteSingleRecordFromFirestore(targetId);
+      showToast(`已自雲端刪除該筆學生課程紀錄`, `success`);
     }
 
     // =========================================================================
-    // ADMIN MANAGEMENT ACTIONS
+    // 8. ADMIN MANAGEMENT & STATIC CODE GENERATOR
     // =========================================================================
-    function handleClearAllRecords(btn) {
+    async function handleClearAllRecords(btn) {
       if (btn.dataset.armed !== `true`) {
         btn.dataset.armed = `true`;
-        btn.innerHTML = `<span>再次點擊確認清空全部 (${appState.records.length} 筆)</span>`;
+        btn.innerHTML = `<span>再次點擊確認清空 (${appState.records.length} 筆)</span>`;
         setTimeout(function () {
           if (btn && btn.dataset.armed === `true`) {
             btn.dataset.armed = `false`;
-            btn.innerHTML = `<i data-lucide="trash-2" aria-hidden="true"></i><span>清空全校名冊</span>`;
+            btn.innerHTML = `<i data-lucide="trash-2" aria-hidden="true"></i><span>清空目前名冊</span>`;
             refreshIcons();
           }
         }, 4500);
         return;
       }
       btn.dataset.armed = `false`;
-      btn.innerHTML = `<i data-lucide="trash-2" aria-hidden="true"></i><span>清空全校名冊</span>`;
+      btn.innerHTML = `<i data-lucide="trash-2" aria-hidden="true"></i><span>清空目前名冊</span>`;
+      const oldIds = appState.records.map(function (r) { return r.id; });
       appState.records = [];
-      persistState();
+      appState.seededInitial = true;
       renderAll();
-      showToast(`已清空全校預警名冊`, `success`);
+      await syncAllRecordsToFirestore([], oldIds);
+      showToast(`已清空全校名冊`, `success`);
     }
 
-    function handleAddSingleRecord() {
+    async function handleResetToBuiltin(btn) {
+      if (btn.dataset.armed !== `true`) {
+        btn.dataset.armed = `true`;
+        btn.textContent = `再次點擊確認還原內建資料`;
+        setTimeout(function () {
+          if (btn && btn.dataset.armed === `true`) {
+            btn.dataset.armed = `false`;
+            btn.innerHTML = `<i data-lucide="rotate-ccw" aria-hidden="true"></i><span>還原內建資料</span>`;
+            refreshIcons();
+          }
+        }, 4500);
+        return;
+      }
+      btn.dataset.armed = `false`;
+      const oldIds = appState.records.map(function (r) { return r.id; });
+      const newList = BUILTIN_ROSTER_DATA.map(function (item, idx) {
+        return normalizeRecord(Object.assign({ id: `builtin_${idx + 1}` }, item));
+      });
+      appState.records = newList;
+      renderAll();
+      await syncAllRecordsToFirestore(newList, oldIds);
+      showToast(`已還原為系統內建預設名冊並同步至雲端（${newList.length} 筆）`, `success`);
+    }
+
+    async function copyBuiltinCodeSnippet() {
+      if (appState.records.length === 0) {
+        showToast(`目前名冊為空，無資料可產出`, `error`);
+        return;
+      }
+      const cleanList = appState.records.map(function (r) {
+        const obj = {
+          className: r.className,
+          studentId: r.studentId,
+          studentName: r.studentName,
+          subject: r.subject,
+          teacherName: r.teacherName,
+          teacherCodes: r.teacherCodes
+        };
+        if (r.noHomework) obj.noHomework = true;
+        if (r.submitted) obj.submitted = true;
+        if (r.missingCount && r.missingCount !== `0 份`) obj.missingCount = r.missingCount;
+        if (r.sleeping) obj.sleeping = true;
+        if (r.missingContent) obj.missingContent = r.missingContent;
+        if (r.suggestions) obj.suggestions = r.suggestions;
+        if (r.lastModifiedAt) obj.lastModifiedAt = r.lastModifiedAt;
+        if (r.lastModifiedBy) obj.lastModifiedBy = r.lastModifiedBy;
+        return obj;
+      });
+      const snippet = `const BUILTIN_ROSTER_DATA = ${JSON.stringify(cleanList, null, 2)};`;
+      try {
+        await navigator.clipboard.writeText(snippet);
+        showToast(`已複製 ${cleanList.length} 筆內建資料碼至剪貼簿！`, `success`);
+      } catch (err) {
+        downloadBinaryBlob(new TextEncoder().encode(snippet), `BUILTIN_ROSTER_DATA.txt`, `text/plain;charset=utf-8`);
+        showToast(`已下載 BUILTIN_ROSTER_DATA.txt`, `success`);
+      }
+    }
+
+    async function handleAddSingleRecord() {
       const cls = document.getElementById(`add-class`).value.trim();
       const sid = document.getElementById(`add-sid`).value.trim();
       const sname = document.getElementById(`add-sname`).value.trim();
@@ -2354,34 +1987,27 @@
       appState.records.push(newRec);
       document.getElementById(`add-sid`).value = ``;
       document.getElementById(`add-sname`).value = ``;
-      persistState();
-      renderAdminKpis();
-      renderAdminTable();
-      document.getElementById(`header-roster-count`).textContent = `全校名冊 ${appState.records.length} 筆`;
-      showToast(`已新增 ${cls} ${sname}（${sub}）`, `success`);
+      renderAll();
+      await syncSingleRecordToFirestore(newRec);
+      showToast(`已新增並同步 ${cls} ${sname}（${sub}）`, `success`);
     }
 
     // =========================================================================
-    // ADMIN ANALYTICS & BATCH CODE ASSIGNMENT
+    // 9. ADMIN ANALYTICS & BATCH CODE ASSIGNMENT
     // =========================================================================
     function renderAdminAnalytics() {
       const selectEl = document.getElementById(`batch-teacher-key`);
       const barsEl = document.getElementById(`analytics-class-bars`);
       if (!selectEl || !barsEl) return;
 
-      // Group by teacherName + subject
       const groups = {};
       for (let i = 0; i < appState.records.length; i++) {
         const r = appState.records[i];
         const key = `${r.teacherName}｜${r.subject}`;
-        if (!groups[key]) {
-          groups[key] = { count: 0, noCodeCount: 0, sampleCode: r.teacherCodes.join(`,`) };
-        }
+        if (!groups[key]) groups[key] = { count: 0, noCodeCount: 0, sampleCode: r.teacherCodes.join(`,`) };
         groups[key].count++;
         if (r.teacherCodes.length === 0) groups[key].noCodeCount++;
-        if (!groups[key].sampleCode && r.teacherCodes.length > 0) {
-          groups[key].sampleCode = r.teacherCodes.join(`,`);
-        }
+        if (!groups[key].sampleCode && r.teacherCodes.length > 0) groups[key].sampleCode = r.teacherCodes.join(`,`);
       }
 
       const groupKeys = Object.keys(groups);
@@ -2404,15 +2030,12 @@
         prefillBatchCode();
       }
 
-      // Class warning bars
       const classStats = {};
       for (let i = 0; i < appState.records.length; i++) {
         const r = appState.records[i];
         if (!classStats[r.className]) classStats[r.className] = { total: 0, alerts: 0 };
         classStats[r.className].total++;
-        if (r.missingCount !== `0 份` || r.sleeping || r.noHomework) {
-          classStats[r.className].alerts++;
-        }
+        if (r.missingCount !== `0 份` || r.sleeping || r.noHomework) classStats[r.className].alerts++;
       }
       const clsNames = Object.keys(classStats);
       if (clsNames.length === 0) {
@@ -2445,14 +2068,10 @@
       const inp = document.getElementById(`batch-code-input`);
       if (!sel || !inp) return;
       const opt = sel.options[sel.selectedIndex];
-      if (opt && opt.dataset.code) {
-        inp.value = opt.dataset.code;
-      } else {
-        inp.value = ``;
-      }
+      inp.value = (opt && opt.dataset.code) ? opt.dataset.code : ``;
     }
 
-    function applyBatchTeacherCode() {
+    async function applyBatchTeacherCode() {
       const sel = document.getElementById(`batch-teacher-key`);
       const inp = document.getElementById(`batch-code-input`);
       if (!sel || !inp || !sel.value) return;
@@ -2463,32 +2082,30 @@
         return;
       }
 
-      let updated = 0;
+      const modifiedList = [];
       for (let i = 0; i < appState.records.length; i++) {
         const r = appState.records[i];
         if (`${r.teacherName}｜${r.subject}` === sel.value) {
           r.teacherCodes = codes.slice();
-          updated++;
+          modifiedList.push(r);
         }
       }
 
-      persistState();
-      renderAdminKpis();
-      renderAdminTable();
-      renderAdminAnalytics();
-      showToast(`已將代碼 ${codes.join(`,`)} 套用至 ${updated} 筆紀錄`, `success`);
+      renderAll();
+      if (modifiedList.length > 0) {
+        await syncAllRecordsToFirestore(modifiedList, []);
+      }
+      showToast(`已將代碼 ${codes.join(`,`)} 套用並同步至 ${modifiedList.length} 筆紀錄`, `success`);
     }
 
     // =========================================================================
-    // PURE-JS XLSX PARSER & WRITER (Zero External Dependencies)
+    // 10. PURE-JS XLSX PARSER & WRITER
     // =========================================================================
     const CRC32_TABLE = (function () {
       const table = new Uint32Array(256);
       for (let i = 0; i < 256; i++) {
         let c = i;
-        for (let k = 0; k < 8; k++) {
-          c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
-        }
+        for (let k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
         table[i] = c >>> 0;
       }
       return table;
@@ -2496,9 +2113,7 @@
 
     function crc32(bytes) {
       let crc = 0xFFFFFFFF;
-      for (let i = 0; i < bytes.length; i++) {
-        crc = CRC32_TABLE[(crc ^ bytes[i]) & 0xFF] ^ (crc >>> 8);
-      }
+      for (let i = 0; i < bytes.length; i++) crc = CRC32_TABLE[(crc ^ bytes[i]) & 0xFF] ^ (crc >>> 8);
       return (crc ^ 0xFFFFFFFF) >>> 0;
     }
 
@@ -2510,50 +2125,24 @@
 
       for (let i = 0; i < entries.length; i++) {
         const nameBytes = encoder.encode(entries[i].name);
-        const dataBytes = typeof entries[i].content === `string`
-          ? encoder.encode(entries[i].content)
-          : entries[i].content;
+        const dataBytes = typeof entries[i].content === `string` ? encoder.encode(entries[i].content) : entries[i].content;
         const crc = crc32(dataBytes);
         const size = dataBytes.length;
 
         const lfh = new Uint8Array(30 + nameBytes.length);
         const dvL = new DataView(lfh.buffer);
-        dvL.setUint32(0, 0x04034B50, true);
-        dvL.setUint16(4, 20, true);
-        dvL.setUint16(6, 0x0800, true); // UTF-8
-        dvL.setUint16(8, 0, true); // STORE
-        dvL.setUint16(10, 0, true);
-        dvL.setUint16(12, 0, true);
-        dvL.setUint32(14, crc, true);
-        dvL.setUint32(18, size, true);
-        dvL.setUint32(22, size, true);
+        dvL.setUint32(0, 0x04034B50, true); dvL.setUint16(4, 20, true); dvL.setUint16(6, 0x0800, true);
+        dvL.setUint32(14, crc, true); dvL.setUint32(18, size, true); dvL.setUint32(22, size, true);
         dvL.setUint16(26, nameBytes.length, true);
-        dvL.setUint16(28, 0, true);
         lfh.set(nameBytes, 30);
-
         localParts.push(lfh, dataBytes);
 
         const cdh = new Uint8Array(46 + nameBytes.length);
         const dvC = new DataView(cdh.buffer);
-        dvC.setUint32(0, 0x02014B50, true);
-        dvC.setUint16(4, 20, true);
-        dvC.setUint16(6, 20, true);
-        dvC.setUint16(8, 0x0800, true);
-        dvC.setUint16(10, 0, true);
-        dvC.setUint16(12, 0, true);
-        dvC.setUint16(14, 0, true);
-        dvC.setUint32(16, crc, true);
-        dvC.setUint32(20, size, true);
-        dvC.setUint32(24, size, true);
-        dvC.setUint16(28, nameBytes.length, true);
-        dvC.setUint16(30, 0, true);
-        dvC.setUint16(32, 0, true);
-        dvC.setUint16(34, 0, true);
-        dvC.setUint16(36, 0, true);
-        dvC.setUint32(38, 0, true);
-        dvC.setUint32(42, offset, true);
+        dvC.setUint32(0, 0x02014B50, true); dvC.setUint16(4, 20, true); dvC.setUint16(6, 20, true);
+        dvC.setUint16(8, 0x0800, true); dvC.setUint32(16, crc, true); dvC.setUint32(20, size, true);
+        dvC.setUint32(24, size, true); dvC.setUint16(28, nameBytes.length, true); dvC.setUint32(42, offset, true);
         cdh.set(nameBytes, 46);
-
         centralParts.push(cdh);
         offset += lfh.length + dataBytes.length;
       }
@@ -2563,26 +2152,13 @@
 
       const eocd = new Uint8Array(22);
       const dvE = new DataView(eocd.buffer);
-      dvE.setUint32(0, 0x06054B50, true);
-      dvE.setUint16(4, 0, true);
-      dvE.setUint16(6, 0, true);
-      dvE.setUint16(8, entries.length, true);
-      dvE.setUint16(10, entries.length, true);
-      dvE.setUint32(12, cdSize, true);
-      dvE.setUint32(16, offset, true);
-      dvE.setUint16(20, 0, true);
+      dvE.setUint32(0, 0x06054B50, true); dvE.setUint16(8, entries.length, true);
+      dvE.setUint16(10, entries.length, true); dvE.setUint32(12, cdSize, true); dvE.setUint32(16, offset, true);
 
-      const totalLen = offset + cdSize + 22;
-      const out = new Uint8Array(totalLen);
+      const out = new Uint8Array(offset + cdSize + 22);
       let pos = 0;
-      for (let i = 0; i < localParts.length; i++) {
-        out.set(localParts[i], pos);
-        pos += localParts[i].length;
-      }
-      for (let i = 0; i < centralParts.length; i++) {
-        out.set(centralParts[i], pos);
-        pos += centralParts[i].length;
-      }
+      for (let i = 0; i < localParts.length; i++) { out.set(localParts[i], pos); pos += localParts[i].length; }
+      for (let i = 0; i < centralParts.length; i++) { out.set(centralParts[i], pos); pos += centralParts[i].length; }
       out.set(eocd, pos);
       return out;
     }
@@ -2590,21 +2166,13 @@
     function xmlEscape(str) {
       return String(str == null ? `` : str)
         .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, ``)
-        .replace(/&/g, `&amp;`)
-        .replace(/</g, `&lt;`)
-        .replace(/>/g, `&gt;`)
-        .replace(/"/g, `&quot;`)
-        .replace(/'/g, `&apos;`);
+        .replace(/&/g, `&amp;`).replace(/</g, `&lt;`).replace(/>/g, `&gt;`)
+        .replace(/"/g, `&quot;`).replace(/'/g, `&apos;`);
     }
 
     function colIndexToLetter(idx) {
-      let n = idx + 1;
-      let s = ``;
-      while (n > 0) {
-        const rem = (n - 1) % 26;
-        s = String.fromCharCode(65 + rem) + s;
-        n = Math.floor((n - 1) / 26);
-      }
+      let n = idx + 1; let s = ``;
+      while (n > 0) { const rem = (n - 1) % 26; s = String.fromCharCode(65 + rem) + s; n = Math.floor((n - 1) / 26); }
       return s;
     }
 
@@ -2623,60 +2191,24 @@
         }).join(``);
         return `<row r="${rIdx + 1}">${cells}</row>`;
       }).join(``);
-
-      return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>` +
-        `<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">` +
-        colsXml +
-        `<sheetData>${rowsXml}</sheetData>` +
-        `</worksheet>`;
+      return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">${colsXml}<sheetData>${rowsXml}</sheetData></worksheet>`;
     }
 
     function createXlsxBytes(sheets) {
       const contentTypeOverrides = sheets.map(function (_, idx) {
         return `<Override PartName="/xl/worksheets/sheet${idx + 1}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`;
       }).join(``);
-
-      const contentTypesXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>` +
-        `<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">` +
-        `<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>` +
-        `<Default Extension="xml" ContentType="application/xml"/>` +
-        `<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>` +
-        `<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>` +
-        contentTypeOverrides +
-        `</Types>`;
-
-      const rootRelsXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>` +
-        `<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">` +
-        `<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>` +
-        `</Relationships>`;
-
+      const contentTypesXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>${contentTypeOverrides}</Types>`;
+      const rootRelsXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>`;
       const sheetEntriesXml = sheets.map(function (s, idx) {
         return `<sheet name="${xmlEscape(s.name)}" sheetId="${idx + 1}" r:id="rId${idx + 1}"/>`;
       }).join(``);
-
-      const workbookXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>` +
-        `<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">` +
-        `<sheets>${sheetEntriesXml}</sheets>` +
-        `</workbook>`;
-
+      const workbookXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets>${sheetEntriesXml}</sheets></workbook>`;
       const sheetRelsXml = sheets.map(function (_, idx) {
         return `<Relationship Id="rId${idx + 1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet${idx + 1}.xml"/>`;
       }).join(``);
-
-      const wbRelsXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>` +
-        `<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">` +
-        sheetRelsXml +
-        `<Relationship Id="rId${sheets.length + 1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>` +
-        `</Relationships>`;
-
-      const stylesXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>` +
-        `<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">` +
-        `<fonts count="2"><font><sz val="11"/><name val="Noto Sans TC"/></font><font><b/><sz val="11"/><name val="Noto Sans TC"/></font></fonts>` +
-        `<fills count="3"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FFE0E0E0"/></patternFill></fill></fills>` +
-        `<borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders>` +
-        `<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>` +
-        `<cellXfs count="2"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1"/></cellXfs>` +
-        `</styleSheet>`;
+      const wbRelsXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${sheetRelsXml}<Relationship Id="rId${sheets.length + 1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>`;
+      const stylesXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="2"><font><sz val="11"/><name val="Noto Sans TC"/></font><font><b/><sz val="11"/><name val="Noto Sans TC"/></font></fonts><fills count="3"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FFE0E0E0"/></patternFill></fill></fills><borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="2"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1"/></cellXfs></styleSheet>`;
 
       const zipEntries = [
         { name: `[Content_Types].xml`, content: contentTypesXml },
@@ -2685,14 +2217,9 @@
         { name: `xl/_rels/workbook.xml.rels`, content: wbRelsXml },
         { name: `xl/styles.xml`, content: stylesXml }
       ];
-
       for (let i = 0; i < sheets.length; i++) {
-        zipEntries.push({
-          name: `xl/worksheets/sheet${i + 1}.xml`,
-          content: buildWorksheetXml(sheets[i].rows, sheets[i].colWidths)
-        });
+        zipEntries.push({ name: `xl/worksheets/sheet${i + 1}.xml`, content: buildWorksheetXml(sheets[i].rows, sheets[i].colWidths) });
       }
-
       return buildZipStore(zipEntries);
     }
 
@@ -2700,11 +2227,8 @@
       const blob = new Blob([uint8Array], { type: mimeType });
       const url = URL.createObjectURL(blob);
       const a = document.createElement(`a`);
-      a.href = url;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
+      a.href = url; a.download = filename;
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
       setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
     }
 
@@ -2713,9 +2237,7 @@
         {
           name: `學生課程名冊`,
           colWidths: [12, 12, 12, 22, 18, 20],
-          rows: [
-            [`班級`, `學號`, `姓名`, `科目`, `教師`, `教師代碼`]
-          ]
+          rows: [[`班級`, `學號`, `姓名`, `科目`, `教師`, `教師代碼`]]
         },
         {
           name: `填寫說明`,
@@ -2726,151 +2248,80 @@
             [`學號（必填）`, `學生學號，例如：513102。`],
             [`姓名（必填）`, `學生姓名，例如：王同學。`],
             [`科目（必填）`, `修課科目名稱，例如：國語文、機械基礎實習。`],
-            [`教師（必填）`, `授課教師姓名；合授課程請以逗號分隔，例如：賴老師,李老師。若無第 6 欄，亦可直接填入「郭老師(CH8105)」或代碼「CH8105」。`],
+            [`教師（必填）`, `授課教師姓名；合授課程請以逗號分隔，例如：賴老師,李老師。若無第 6 欄，亦可直接填入「郭老師(CH8105)」。`],
             [`教師代碼（選填）`, `教師/課程代碼（如 CH8105 或 EE0825,MI3133）；供教師登入系統時過濾個人名冊使用。`]
           ]
         }
       ];
       const bytes = createXlsxBytes(sheets);
-      downloadBinaryBlob(
-        bytes,
-        `期中預警系統_匯入範本.xlsx`,
-        `application/vnd.openxmlformats-officedocument.spreadsheetml.sheet`
-      );
-      showToast(`已下載 XLSX 匯入範本（含 5 基礎欄 + 選填代碼欄與填寫說明）`, `success`);
+      downloadBinaryBlob(bytes, `期中預警系統_匯入範本.xlsx`, `application/vnd.openxmlformats-officedocument.spreadsheetml.sheet`);
+      showToast(`已下載 XLSX 匯入範本`, `success`);
     }
 
     function exportCurrentViewXlsx(mode) {
       const list = mode === `teacher` ? getFilteredTeacherRecords() : getFilteredAdminRecords();
-      if (list.length === 0) {
-        showToast(`目前畫面無資料可匯出`, `error`);
-        return;
-      }
+      if (list.length === 0) { showToast(`目前畫面無資料可匯出`, `error`); return; }
       const header = [`班級`, `學號`, `姓名`, `科目`, `教師`, `無作業`, `已繳交`, `未繳交`, `睡覺`, `缺交內容`, `其他建議`, `最後修改時間`, `最後修改者`];
       const dataRows = list.map(function (r) {
         return [
-          r.className,
-          r.studentId,
-          r.studentName,
-          r.subject,
+          r.className, r.studentId, r.studentName, r.subject,
           r.teacherCodes.length ? `${r.teacherName} (${r.teacherCodes.join(`,`)})` : r.teacherName,
-          r.noHomework ? `V` : ``,
-          r.submitted ? `V` : ``,
-          r.missingCount,
-          r.sleeping ? `V` : ``,
-          r.missingContent,
-          r.suggestions,
-          r.lastModifiedAt,
-          r.lastModifiedBy
+          r.noHomework ? `V` : ``, r.submitted ? `V` : ``, r.missingCount, r.sleeping ? `V` : ``,
+          r.missingContent, r.suggestions, r.lastModifiedAt, r.lastModifiedBy
         ];
       });
-      const bytes = createXlsxBytes([
-        {
-          name: `期中預警名冊`,
-          colWidths: [12, 12, 12, 20, 22, 10, 10, 12, 10, 26, 26, 22, 14],
-          rows: [header].concat(dataRows)
-        }
-      ]);
+      const bytes = createXlsxBytes([{ name: `期中預警名冊`, colWidths: [12, 12, 12, 20, 22, 10, 10, 12, 10, 26, 26, 22, 14], rows: [header].concat(dataRows) }]);
       const tag = mode === `teacher` ? appState.session.code : `全校名冊`;
-      downloadBinaryBlob(
-        bytes,
-        `期中預警_${tag}.xlsx`,
-        `application/vnd.openxmlformats-officedocument.spreadsheetml.sheet`
-      );
+      downloadBinaryBlob(bytes, `期中預警_${tag}.xlsx`, `application/vnd.openxmlformats-officedocument.spreadsheetml.sheet`);
       showToast(`已匯出 ${list.length} 筆 XLSX 報表`, `success`);
     }
 
     function exportCurrentViewCsv(mode) {
       const list = mode === `teacher` ? getFilteredTeacherRecords() : getFilteredAdminRecords();
-      if (list.length === 0) {
-        showToast(`目前畫面無資料可匯出`, `error`);
-        return;
-      }
+      if (list.length === 0) { showToast(`目前畫面無資料可匯出`, `error`); return; }
       const header = [`班級`, `學號`, `姓名`, `科目`, `教師`, `無作業`, `已繳交`, `未繳交`, `睡覺`, `缺交內容`, `其他建議`, `最後修改時間`, `最後修改者`];
       const csvEscape = function (v) {
         const s = String(v == null ? `` : v);
-        if (/[",\n\r]/.test(s)) return `"` + s.replace(/"/g, `""`) + `"`;
-        return s;
+        return /[",\n\r]/.test(s) ? `"` + s.replace(/"/g, `""`) + `"` : s;
       };
       const lines = [header.map(csvEscape).join(`,`)];
       for (let i = 0; i < list.length; i++) {
         const r = list[i];
         lines.push([
-          r.className,
-          r.studentId,
-          r.studentName,
-          r.subject,
+          r.className, r.studentId, r.studentName, r.subject,
           r.teacherCodes.length ? `${r.teacherName} (${r.teacherCodes.join(`,`)})` : r.teacherName,
-          r.noHomework ? `V` : ``,
-          r.submitted ? `V` : ``,
-          r.missingCount,
-          r.sleeping ? `V` : ``,
-          r.missingContent,
-          r.suggestions,
-          r.lastModifiedAt,
-          r.lastModifiedBy
+          r.noHomework ? `V` : ``, r.submitted ? `V` : ``, r.missingCount, r.sleeping ? `V` : ``,
+          r.missingContent, r.suggestions, r.lastModifiedAt, r.lastModifiedBy
         ].map(csvEscape).join(`,`));
       }
       const csvContent = `\uFEFF` + lines.join(`\n`);
       const tag = mode === `teacher` ? appState.session.code : `全校名冊`;
-      if (window.notebookAppApi && typeof window.notebookAppApi.triggerFileDownload === `function`) {
-        window.notebookAppApi.triggerFileDownload({
-          content: csvContent,
-          contentType: `text/csv`,
-          encoding: `UTF-8`,
-          filename: `期中預警_${tag}.csv`
-        });
-      } else {
-        downloadBinaryBlob(new TextEncoder().encode(csvContent), `期中預警_${tag}.csv`, `text/csv;charset=utf-8`);
-      }
+      downloadBinaryBlob(new TextEncoder().encode(csvContent), `期中預警_${tag}.csv`, `text/csv;charset=utf-8`);
       showToast(`已匯出 ${list.length} 筆 CSV 報表`, `success`);
     }
 
     // =========================================================================
-    // PURE-JS XLSX READER (ZIP Central Directory + DecompressionStream)
+    // 11. PURE-JS XLSX READER
     // =========================================================================
     function triggerXlsxPicker() {
       const inp = document.getElementById(`input-xlsx-file`);
-      if (inp) {
-        inp.value = ``;
-        inp.click();
-      }
+      if (inp) { inp.value = ``; inp.click(); }
     }
-
-    function handleDragOver(ev) {
-      ev.preventDefault();
-      const dz = document.getElementById(`xlsx-dropzone`);
-      if (dz) dz.classList.add(`is-dragover`);
-    }
-
-    function handleDragLeave(ev) {
-      ev.preventDefault();
-      const dz = document.getElementById(`xlsx-dropzone`);
-      if (dz) dz.classList.remove(`is-dragover`);
-    }
-
+    function handleDragOver(ev) { ev.preventDefault(); document.getElementById(`xlsx-dropzone`).classList.add(`is-dragover`); }
+    function handleDragLeave(ev) { ev.preventDefault(); document.getElementById(`xlsx-dropzone`).classList.remove(`is-dragover`); }
     function handleDropFile(ev) {
-      ev.preventDefault();
-      const dz = document.getElementById(`xlsx-dropzone`);
-      if (dz) dz.classList.remove(`is-dragover`);
-      if (ev.dataTransfer && ev.dataTransfer.files && ev.dataTransfer.files[0]) {
-        handleXlsxFileSelected(ev.dataTransfer.files[0]);
-      }
+      ev.preventDefault(); document.getElementById(`xlsx-dropzone`).classList.remove(`is-dragover`);
+      if (ev.dataTransfer && ev.dataTransfer.files && ev.dataTransfer.files[0]) handleXlsxFileSelected(ev.dataTransfer.files[0]);
     }
 
     async function readZipEntries(arrayBuffer) {
       const bytes = new Uint8Array(arrayBuffer);
       const dv = new DataView(arrayBuffer);
       const decoder = new TextDecoder(`utf-8`);
-
-      // Locate End of Central Directory (0x06054b50)
       let eocdPos = -1;
       const minPos = Math.max(0, bytes.length - 65557);
       for (let i = bytes.length - 22; i >= minPos; i--) {
-        if (dv.getUint32(i, true) === 0x06054B50) {
-          eocdPos = i;
-          break;
-        }
+        if (dv.getUint32(i, true) === 0x06054B50) { eocdPos = i; break; }
       }
       if (eocdPos < 0) throw new Error(`無法識別 ZIP / XLSX 檔案結構，請確認是否為標準 .xlsx 格式。`);
 
@@ -2890,35 +2341,25 @@
         const name = decoder.decode(bytes.subarray(ptr + 46, ptr + 46 + nameLen));
         ptr += 46 + nameLen + extraLen + commentLen;
 
-        // Read local file header to find actual data start
         if (dv.getUint32(localOffset, true) !== 0x04034B50) continue;
         const lNameLen = dv.getUint16(localOffset + 26, true);
         const lExtraLen = dv.getUint16(localOffset + 28, true);
         const dataStart = localOffset + 30 + lNameLen + lExtraLen;
-        const slice = bytes.subarray(dataStart, dataStart + compSize);
-
-        files[name] = { method: method, slice: slice };
+        files[name] = { method: method, slice: bytes.subarray(dataStart, dataStart + compSize) };
       }
-
       return files;
     }
 
     async function extractZipEntryText(entry) {
       if (!entry) return ``;
       const decoder = new TextDecoder(`utf-8`);
-      if (entry.method === 0) {
-        return decoder.decode(entry.slice);
-      }
+      if (entry.method === 0) return decoder.decode(entry.slice);
       if (entry.method === 8) {
-        if (typeof DecompressionStream === `undefined`) {
-          throw new Error(`目前瀏覽器不支援 DecompressionStream，無法解壓縮 XLSX。`);
-        }
         const ds = new DecompressionStream(`deflate-raw`);
         const writer = ds.writable.getWriter();
         writer.write(entry.slice);
         writer.close();
-        const resp = new Response(ds.readable);
-        const buf = await resp.arrayBuffer();
+        const buf = await (new Response(ds.readable)).arrayBuffer();
         return decoder.decode(buf);
       }
       throw new Error(`不支援的 ZIP 壓縮格式（method ${entry.method}）。`);
@@ -2929,27 +2370,22 @@
       if (!m) return -1;
       const letters = m[1].toUpperCase();
       let col = 0;
-      for (let i = 0; i < letters.length; i++) {
-        col = col * 26 + (letters.charCodeAt(i) - 64);
-      }
+      for (let i = 0; i < letters.length; i++) col = col * 26 + (letters.charCodeAt(i) - 64);
       return col - 1;
     }
 
     function xmlByTag(root, tagName) {
       const nsList = root.getElementsByTagNameNS(`*`, tagName);
-      if (nsList && nsList.length > 0) return nsList;
-      return root.getElementsByTagName(tagName);
+      return (nsList && nsList.length > 0) ? nsList : root.getElementsByTagName(tagName);
     }
 
     function parseSheetRows(sheetXmlText, sharedStrings) {
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(sheetXmlText, `application/xml`);
+      const doc = new DOMParser().parseFromString(sheetXmlText, `application/xml`);
       const rowNodes = xmlByTag(doc, `row`);
       const rows = [];
 
       for (let i = 0; i < rowNodes.length; i++) {
-        const rowNode = rowNodes[i];
-        const cellNodes = xmlByTag(rowNode, `c`);
+        const cellNodes = xmlByTag(rowNodes[i], `c`);
         const rowArr = [];
         let fallbackCol = 0;
 
@@ -2962,7 +2398,6 @@
 
           const t = cell.getAttribute(`t`) || ``;
           let val = ``;
-
           if (t === `s`) {
             const vNode = xmlByTag(cell, `v`)[0];
             const sIdx = vNode ? parseInt(vNode.textContent || `-1`, 10) : -1;
@@ -2983,9 +2418,7 @@
           while (rowArr.length <= colIdx) rowArr.push(``);
           rowArr[colIdx] = String(val).trim();
         }
-        if (rowArr.some(function (cellVal) { return cellVal !== ``; })) {
-          rows.push(rowArr);
-        }
+        if (rowArr.some(function (cellVal) { return cellVal !== ``; })) rows.push(rowArr);
       }
       return rows;
     }
@@ -2994,7 +2427,6 @@
       const buffer = await file.arrayBuffer();
       const zipFiles = await readZipEntries(buffer);
 
-      // Parse sharedStrings if present
       let sharedStrings = [];
       if (zipFiles[`xl/sharedStrings.xml`]) {
         const ssText = await extractZipEntryText(zipFiles[`xl/sharedStrings.xml`]);
@@ -3008,7 +2440,6 @@
         }
       }
 
-      // Locate first worksheet path
       let sheetPath = `xl/worksheets/sheet1.xml`;
       if (zipFiles[`xl/workbook.xml`] && zipFiles[`xl/_rels/workbook.xml.rels`]) {
         const wbText = await extractZipEntryText(zipFiles[`xl/workbook.xml`]);
@@ -3021,8 +2452,7 @@
           const relNodes = xmlByTag(relsDoc, `Relationship`);
           for (let i = 0; i < relNodes.length; i++) {
             if (relNodes[i].getAttribute(`Id`) === rid) {
-              let target = relNodes[i].getAttribute(`Target`) || ``;
-              target = target.replace(/^\/+/, ``);
+              let target = (relNodes[i].getAttribute(`Target`) || ``).replace(/^\/+/, ``);
               if (target.indexOf(`xl/`) !== 0) target = `xl/${target}`;
               if (zipFiles[target]) sheetPath = target;
               break;
@@ -3031,9 +2461,7 @@
         }
       }
 
-      if (!zipFiles[sheetPath]) {
-        throw new Error(`找不到工作表 XML，請確認上傳檔案為有效的 .xlsx 試算表。`);
-      }
+      if (!zipFiles[sheetPath]) throw new Error(`找不到工作表 XML，請確認上傳檔案為有效的 .xlsx 試算表。`);
       const sheetXml = await extractZipEntryText(zipFiles[sheetPath]);
       return parseSheetRows(sheetXml, sharedStrings);
     }
@@ -3056,9 +2484,7 @@
 
       try {
         const rows = await parseXlsxFile(file);
-        if (rows.length < 2) {
-          throw new Error(`工作表無資料列（至少須包含標題列與 1 筆學生資料）。`);
-        }
+        if (rows.length < 2) throw new Error(`工作表無資料列（至少須包含標題列與 1 筆學生資料）。`);
 
         const headers = rows[0].map(function (h) { return String(h || ``).trim(); });
         const idxClass = headers.indexOf(`班級`);
@@ -3073,23 +2499,18 @@
         if (idxSname < 0) missingHeaders.push(`姓名`);
         if (idxSub < 0) missingHeaders.push(`科目`);
         if (idxTeacher < 0) missingHeaders.push(`教師`);
-
         if (missingHeaders.length > 0) {
           throw new Error(`缺少必要欄位標題：${missingHeaders.join(`、`)}。請下載「XLSX 匯入範本」確認欄位名稱後再試。`);
         }
 
-        // Optional code column (explicit name or blank column right after 教師)
         let idxCode = -1;
         const codeNames = [`教師代碼`, `課程代碼`, `代碼`, `教師代碼/課程代碼`];
         for (let i = 0; i < codeNames.length; i++) {
           const foundIdx = headers.indexOf(codeNames[i]);
           if (foundIdx >= 0) { idxCode = foundIdx; break; }
         }
-        if (idxCode < 0 && headers[idxTeacher + 1] === ``) {
-          idxCode = idxTeacher + 1;
-        }
+        if (idxCode < 0 && headers[idxTeacher + 1] === ``) idxCode = idxTeacher + 1;
 
-        // Optional 13-col warning fields
         const idxNoHw = headers.indexOf(`無作業`);
         const idxSubmitted = headers.indexOf(`已繳交`);
         const idxMissing = headers.indexOf(`未繳交`);
@@ -3110,9 +2531,7 @@
           if (!cls && !sid && !sname && !sub) continue;
 
           let codes = [];
-          if (idxCode >= 0 && row[idxCode]) {
-            codes = codes.concat(parseCodes(row[idxCode]));
-          }
+          if (idxCode >= 0 && row[idxCode]) codes = codes.concat(parseCodes(row[idxCode]));
           codes = codes.concat(extractEmbeddedCodes(teacher));
           const cleanTeacherName = teacher.replace(/\([A-Z0-9,\s]+\)/gi, ``).trim() || teacher;
 
@@ -3135,9 +2554,7 @@
           }));
         }
 
-        if (parsedRecords.length === 0) {
-          throw new Error(`檔案中沒有有效的資料列，請確認資料內容。`);
-        }
+        if (parsedRecords.length === 0) throw new Error(`檔案中沒有有效的資料列，請確認資料內容。`);
 
         appState.pendingImport = parsedRecords;
         renderImportPreview(file.name, parsedRecords);
@@ -3162,8 +2579,7 @@
         `<strong>${classCount}</strong> 個班級、<strong>${codeCount}</strong> 組教師代碼。` +
         (missingCodeRows > 0 ? `<br><span style="color: var(--warning);">提醒：有 ${missingCodeRows} 筆資料未帶教師代碼，匯入後可於「代碼維護與預警統計」批次補碼。</span>` : ``);
 
-      const slice = list.slice(0, 8);
-      tbody.innerHTML = slice.map(function (r) {
+      tbody.innerHTML = list.slice(0, 8).map(function (r) {
         return `
           <tr>
             <td>${escapeHtml(r.className)}</td>
@@ -3186,14 +2602,15 @@
       if (previewBox) previewBox.classList.add(`hidden`);
     }
 
-    function commitXlsxImport(strategy) {
+    async function commitXlsxImport(strategy) {
       const incoming = appState.pendingImport;
       if (!incoming || incoming.length === 0) return;
+
+      const oldIds = appState.records.map(function (r) { return r.id; });
 
       if (strategy === `replace`) {
         appState.records = incoming.slice();
       } else {
-        // Merge by studentId + subject
         const map = {};
         for (let i = 0; i < appState.records.length; i++) {
           const ex = appState.records[i];
@@ -3218,13 +2635,55 @@
       const previewBox = document.getElementById(`import-preview-box`);
       if (previewBox) previewBox.classList.add(`hidden`);
 
-      persistState();
       renderAll();
       switchAdminTab(`roster`);
-      showToast(`已成功匯入 ${incoming.length} 筆名冊資料`, `success`);
+      await syncAllRecordsToFirestore(appState.records, strategy === `replace` ? oldIds : []);
+      showToast(`已成功匯入並同步 ${incoming.length} 筆名冊資料至雲端`, `success`);
     }
 
-    window.addEventListener(`DOMContentLoaded`, initApp);
+    // Expose handlers to global window for inline HTML attributes
+    Object.assign(window, {
+      switchLoginTab,
+      handleTeacherLogin,
+      handleAdminLogin,
+      handleLogout,
+      switchAdminTab,
+      renderTeacherTable,
+      renderAdminTable,
+      handleInlineChange,
+      openDetailDrawer,
+      closeDetailDrawer,
+      handleDrawerBackdropClick,
+      syncDetailTileStyles,
+      setDetailMissing,
+      syncDetailMissingSelect,
+      appendQuickText,
+      saveDetailDrawer,
+      navigateDetailRecord,
+      deleteDetailRecord,
+      handleClearAllRecords,
+      handleResetToBuiltin,
+      copyBuiltinCodeSnippet,
+      handleAddSingleRecord,
+      prefillBatchCode,
+      applyBatchTeacherCode,
+      downloadImportTemplateXlsx,
+      exportCurrentViewXlsx,
+      exportCurrentViewCsv,
+      triggerXlsxPicker,
+      handleDragOver,
+      handleDragLeave,
+      handleDropFile,
+      handleXlsxFileSelected,
+      cancelXlsxPreview,
+      commitXlsxImport
+    });
+
+    if (document.readyState === `loading`) {
+      window.addEventListener(`DOMContentLoaded`, initApp);
+    } else {
+      initApp();
+    }
   </script>
 </body>
 </html>
