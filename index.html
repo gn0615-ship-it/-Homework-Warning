@@ -8,6 +8,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/lucide@1.43.0/dist/umd/lucide.min.js"></script>
+  <!-- Firebase Compat SDK (Firestore) -->
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
   <style>
     :root {
       color-scheme: light;
@@ -101,14 +104,6 @@
       color: var(--on-surface-variant); display: flex; flex-wrap: wrap;
       align-items: center; gap: var(--space-sm);
     }
-    .sync-pill {
-      display: inline-flex; align-items: center; gap: 4px;
-      padding: 1px 8px; background: var(--surface-container-high);
-      color: var(--on-surface); font-size: 0.75rem;
-    }
-    .sync-pill.is-online { background: var(--positive-bg); color: var(--positive); }
-    .sync-pill.is-offline { background: var(--warning-bg); color: var(--warning); }
-
     .headline {
       font-family: var(--font-headline); font-size: var(--display-size);
       font-weight: 300; line-height: 1.2; margin: 0; color: var(--on-surface);
@@ -125,6 +120,12 @@
     }
     .session-badge.is-idle { border-bottom: 2px solid var(--outline); color: var(--on-surface-variant); }
     .session-badge.is-admin { background: var(--primary-container); color: var(--on-primary-container); }
+
+    .sync-dot {
+      display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+      background: var(--positive);
+    }
+    .sync-dot.is-offline { background: var(--error); }
 
     .layer { background: var(--surface-container); padding: var(--space-lg); }
     .layer .layer { background: var(--surface-container-high); }
@@ -359,12 +360,15 @@
         <div class="brand-eyebrow">
           <span class="mono">MIDTERM EARLY WARNING SYSTEM</span>
           <span>｜</span>
-          <span id="header-roster-count" class="mono">全校名冊 0 筆</span>
+          <span id="header-roster-count" class="mono">連線資料庫中...</span>
           <span>｜</span>
-          <span id="firebase-sync-status" class="sync-pill mono">Firebase 連線中...</span>
+          <span id="firebase-status-label" class="mono" style="display: inline-flex; align-items: center; gap: 6px;">
+            <span id="firebase-sync-dot" class="sync-dot is-offline"></span>
+            <span id="firebase-sync-text">Firestore 連線中</span>
+          </span>
         </div>
         <h1 class="headline">期中<strong>預警系統</strong></h1>
-        <p class="subhead-lead">教師依代碼檢核任教班級與學生課堂表現；教務管理者可於後台匯入 XLSX 名冊並即時跨裝置追蹤全校預警狀況。</p>
+        <p class="subhead-lead">教師依代碼檢核任教班級與學生課堂表現；教務管理者可於後台匯入 XLSX 名冊並進行全校預警即時追蹤。</p>
       </div>
       <div class="session-bar">
         <div id="session-badge" class="session-badge is-idle">
@@ -377,6 +381,15 @@
         </button>
       </div>
     </header>
+
+    <!-- Firebase 未設定提示條 -->
+    <div id="firebase-config-warning" class="notice-strip is-error hidden" role="alert">
+      <i data-lucide="alert-triangle" aria-hidden="true"></i>
+      <div>
+        <strong>尚未填入 Firebase 專案設定金鑰 (FIREBASE_CONFIG)</strong><br>
+        請開啟 <code>index.html</code> 原始碼，於 <code>FIREBASE_CONFIG</code> 填入您的 <code>apiKey</code>、<code>authDomain</code> 與 <code>projectId</code> 後重新整理網頁。
+      </div>
+    </div>
 
     <!-- VIEW 1: LOGIN PORTAL -->
     <main id="view-login" class="login-grid">
@@ -396,7 +409,7 @@
           <form class="login-form" onsubmit="event.preventDefault(); handleTeacherLogin();">
             <div class="field-group">
               <label for="input-teacher-code" class="field-label">教師代碼 / 課程代碼</label>
-              <input id="input-teacher-code" type="text" class="field-control mono" autocomplete="off" placeholder="請輸入您的教師或課程代碼" />
+              <input id="input-teacher-code" type="text" class="field-control mono" autocomplete="off" placeholder="例如 CH8105、EE0825" />
               <div class="field-hint">請輸入您的教師或課程代碼（不區分大小寫）；登入後將僅過濾並顯示您任教之班級與科目名冊。</div>
             </div>
             <div id="teacher-login-msg" class="field-error-text hidden" role="alert"></div>
@@ -407,6 +420,13 @@
               </button>
             </div>
           </form>
+          <div id="login-empty-notice" class="notice-strip is-warning hidden" style="margin-top: var(--space-lg);">
+            <i data-lucide="info" aria-hidden="true"></i>
+            <div>
+              <strong>雲端資料庫目前為空白</strong><br>
+              請由教務管理者切換至「管理者後台登入」，下載 XLSX 匯入範本並上傳全校名冊後，教師即可依代碼登入檢核。
+            </div>
+          </div>
         </div>
 
         <div id="panel-login-admin" class="hidden">
@@ -414,7 +434,7 @@
             <div class="field-group">
               <label for="input-admin-password" class="field-label">管理者密碼</label>
               <input id="input-admin-password" type="password" class="field-control mono" autocomplete="off" placeholder="請輸入管理者密碼" />
-              <div class="field-hint">驗證通過後可進入後台進行 .xlsx 檔案匯入、下載匯入範本、全校 13 欄管理與批次補登代碼。</div>
+              <div class="field-hint">驗證通過後可進入後台進行 .xlsx 檔案匯入、下載匯入範本及全校 13 欄名冊管理。</div>
             </div>
             <div id="admin-login-msg" class="field-error-text hidden" role="alert"></div>
             <div>
@@ -430,12 +450,12 @@
       <aside class="layer">
         <div class="section-head">
           <h2 class="small-heading">系統作業規範與雲端同步說明</h2>
-          <span class="code-tag">Firebase 即時同步</span>
+          <span class="code-tag">Firestore 即時同步</span>
         </div>
         <ul class="guide-list">
           <li>
-            <strong>1. 跨裝置雲端即時同步</strong>
-            <span class="field-hint">已串接 Firebase Cloud Firestore（專案 homework-warning），教師填報與管理者匯入之異動皆會即時同步至雲端資料庫。</span>
+            <strong>1. 多師同步與獨立文件鎖定</strong>
+            <span class="field-hint">每位學生的每門修課皆儲存為獨立雲端文件；多位教師同時填報不同科目或學生時互不衝突，變更於 1 秒內同步至管理者後台。</span>
           </li>
           <li>
             <strong>2. 完整 13 項資料庫欄位</strong>
@@ -446,8 +466,8 @@
             <span class="field-hint">「已繳交」勾選框緊鄰「無作業」之後、「未繳交」之前；「未繳交」提供 0 份至 6 份以上下拉選取，儲存時自動紀錄時間與登入代碼。</span>
           </li>
           <li>
-            <strong>4. 支援純 5 欄 XLSX 匯入與內建備援</strong>
-            <span class="field-hint">Excel 僅需「班級、學號、姓名、科目、教師」即可匯入，亦可一鍵匯出為內建程式碼備份。</span>
+            <strong>4. XLSX 批次建置與增量合併</strong>
+            <span class="field-hint">管理者可下載標準 XLSX 範本並一次批次寫入雲端資料庫，支援「覆蓋匯入」或「保留既有預警紀錄增量合併」。</span>
           </li>
         </ul>
       </aside>
@@ -469,7 +489,7 @@
         <div class="kpi-tile">
           <div class="kpi-label">未繳交預警人次</div>
           <div id="t-kpi-missing" class="kpi-value">0</div>
-          <div id="t-kpi-missing-sub" class="kpi-sub">未繳交 1 份以上</div>
+          <div class="kpi-sub">未繳交 1 份以上</div>
         </div>
         <div class="kpi-tile">
           <div class="kpi-label">睡覺 / 無作業標記</div>
@@ -520,7 +540,7 @@
 
       <section aria-label="教師預警名冊資料表">
         <div class="table-meta-bar">
-          <div class="small-heading">任教學生預警名冊（支援表內直接編輯或點選「詳情」，變更將即時同步至 Firebase 雲端）</div>
+          <div class="small-heading">任教學生預警名冊（支援表內直接編輯並即時同步至雲端）</div>
           <div id="t-table-count" class="mono field-hint">顯示 0 / 0 筆</div>
         </div>
         <div id="t-table-empty" class="empty-state hidden">
@@ -562,7 +582,7 @@
         </button>
         <button id="tab-admin-import" type="button" class="tab-btn" role="tab" aria-selected="false" onclick="switchAdminTab('import')">
           <i data-lucide="upload" aria-hidden="true"></i>
-          <span>XLSX 資料匯入與備份</span>
+          <span>XLSX 資料匯入與範本</span>
         </button>
         <button id="tab-admin-analytics" type="button" class="tab-btn" role="tab" aria-selected="false" onclick="switchAdminTab('analytics')">
           <i data-lucide="bar-chart-3" aria-hidden="true"></i>
@@ -591,7 +611,7 @@
           <div class="kpi-tile">
             <div class="kpi-label">待補教師代碼筆數</div>
             <div id="a-kpi-nocode" class="kpi-value">0</div>
-            <div id="a-kpi-nocode-sub" class="kpi-sub">無代碼將無法由教師篩選登入</div>
+            <div class="kpi-sub">無代碼將無法由教師篩選登入</div>
           </div>
         </div>
 
@@ -637,26 +657,20 @@
               <i data-lucide="file-spreadsheet" aria-hidden="true"></i>
               <span>匯出全校 XLSX</span>
             </button>
-            <button type="button" class="btn btn-tertiary btn-compact" onclick="copyBuiltinCodeSnippet()">
-              <i data-lucide="code-2" aria-hidden="true"></i>
-              <span>複製內建資料碼</span>
+            <button type="button" class="btn btn-tertiary btn-compact" onclick="exportCurrentViewCsv('admin')">
+              <i data-lucide="download" aria-hidden="true"></i>
+              <span>匯出 CSV</span>
             </button>
           </div>
         </div>
 
         <div id="a-empty-banner" class="empty-state hidden">
           <strong>目前全校名冊為空白</strong>
-          <span class="field-hint">您可以還原系統預設內建名冊，或切換至「XLSX 資料匯入與備份」匯入新的 Excel (.xlsx) 檔案。</span>
-          <div class="toolbar-actions">
-            <button type="button" class="btn btn-primary btn-compact" onclick="handleResetToBuiltin(this)">
-              <i data-lucide="rotate-ccw" aria-hidden="true"></i>
-              <span>還原內建預設資料</span>
-            </button>
-            <button type="button" class="btn btn-secondary btn-compact" onclick="switchAdminTab('import')">
-              <i data-lucide="upload" aria-hidden="true"></i>
-              <span>前往匯入 XLSX 檔案</span>
-            </button>
-          </div>
+          <span class="field-hint">請切換至「XLSX 資料匯入與範本」下載標準範本並匯入包含「班級、學號、姓名、科目、教師」的 Excel (.xlsx) 檔案。</span>
+          <button type="button" class="btn btn-primary btn-compact" onclick="switchAdminTab('import')">
+            <i data-lucide="upload" aria-hidden="true"></i>
+            <span>前往匯入 XLSX 檔案</span>
+          </button>
         </div>
 
         <div id="a-table-section">
@@ -664,13 +678,9 @@
             <div class="small-heading">全校 13 欄預警總表（管理者可直接編輯、展開詳情或刪除單筆）</div>
             <div class="toolbar-actions">
               <span id="a-table-count" class="mono field-hint">顯示 0 / 0 筆</span>
-              <button type="button" class="btn btn-ghost btn-compact" onclick="handleResetToBuiltin(this)">
-                <i data-lucide="rotate-ccw" aria-hidden="true"></i>
-                <span>還原內建資料</span>
-              </button>
               <button id="btn-clear-all" type="button" class="btn btn-ghost btn-compact" onclick="handleClearAllRecords(this)">
                 <i data-lucide="trash-2" aria-hidden="true"></i>
-                <span>清空目前名冊</span>
+                <span>清空全校名冊</span>
               </button>
             </div>
           </div>
@@ -719,20 +729,6 @@
             </div>
 
             <div class="section-head" style="margin-top: var(--space-sm); margin-bottom: 0;">
-              <h2 class="small-heading">備份為靜態內建資料碼</h2>
-              <span class="code-tag">離線備援</span>
-            </div>
-            <p class="field-hint" style="margin: 0;">
-              匯入新的 XLSX 檔案並確認代碼無誤後，除自動寫入 Firebase 雲端外，亦可點擊下方按鈕複製 JSON 陣列覆蓋 <code>index.html</code> 內的 <code>BUILTIN_ROSTER_DATA</code> 作為靜態備援。
-            </p>
-            <div>
-              <button type="button" class="btn btn-tertiary btn-compact" onclick="copyBuiltinCodeSnippet()">
-                <i data-lucide="copy" aria-hidden="true"></i>
-                <span>複製目前全校名冊為內建程式碼</span>
-              </button>
-            </div>
-
-            <div class="section-head" style="margin-top: var(--space-sm); margin-bottom: 0;">
               <h2 class="small-heading">或手動新增單筆名冊</h2>
             </div>
             <form style="display: grid; gap: var(--space-sm);" onsubmit="event.preventDefault(); handleAddSingleRecord();">
@@ -770,7 +766,7 @@
               <div>
                 <button type="submit" class="btn btn-tertiary btn-compact">
                   <i data-lucide="plus" aria-hidden="true"></i>
-                  <span>新增至全校名冊</span>
+                  <span>新增至雲端名冊</span>
                 </button>
               </div>
             </form>
@@ -815,11 +811,11 @@
                 </table>
               </div>
               <div class="toolbar-actions">
-                <button type="button" class="btn btn-primary" onclick="commitXlsxImport('replace')">
+                <button id="btn-commit-replace" type="button" class="btn btn-primary" onclick="commitXlsxImport('replace')">
                   <i data-lucide="refresh-cw" aria-hidden="true"></i>
                   <span>覆蓋匯入全校名冊</span>
                 </button>
-                <button type="button" class="btn btn-secondary" onclick="commitXlsxImport('merge')">
+                <button id="btn-commit-merge" type="button" class="btn btn-secondary" onclick="commitXlsxImport('merge')">
                   <i data-lucide="git-merge" aria-hidden="true"></i>
                   <span>增量合併匯入（保留既有預警紀錄）</span>
                 </button>
@@ -960,7 +956,7 @@
         </div>
 
         <div class="layer" style="display: grid; gap: var(--space-xs);">
-          <div class="field-label">修改歷程紀錄（儲存時自動寫入）</div>
+          <div class="field-label">修改歷程紀錄（儲存時自動寫入雲端）</div>
           <div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--space-sm); font-size: 0.875rem;">
             <span>最後修改時間：<span id="d-last-time" class="mono">尚未修改</span></span>
             <span>最後修改者：<span id="d-last-by" class="mono">--</span></span>
@@ -977,7 +973,7 @@
           <button id="btn-drawer-delete" type="button" class="btn btn-danger btn-compact hidden" onclick="deleteDetailRecord(this)">刪除紀錄</button>
           <button type="button" class="btn btn-primary btn-compact" onclick="saveDetailDrawer()">
             <i data-lucide="save" aria-hidden="true"></i>
-            <span>儲存並更新歷程</span>
+            <span>儲存並同步雲端</span>
           </button>
         </div>
       </div>
@@ -986,217 +982,174 @@
 
   <div id="toast-region" class="toast-region" aria-live="polite"></div>
 
-  <script type="module">
-    // Import the functions you need from the SDKs you need
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-    import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-analytics.js";
-    import {
-      getFirestore,
-      collection,
-      doc,
-      setDoc,
-      deleteDoc,
-      onSnapshot,
-      writeBatch
-    } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
-
-    // Your web app's Firebase configuration
-    const firebaseConfig = {
-      apiKey: "AIzaSyBEEKeN9pHYKqfc8ig8aaLmF2c1Od7IyEk",
-      authDomain: "homework-warning.firebaseapp.com",
-      projectId: "homework-warning",
-      storageBucket: "homework-warning.firebasestorage.app",
-      messagingSenderId: "751055836821",
-      appId: "1:751055836821:web:a1a7bf99bf1f807da86d9c",
-      measurementId: "G-6H2YXCFF3Z"
+  <script>
+    // =========================================================================
+    // 1. 請在此填入您的 FIREBASE 專案設定 (從 Firebase Console 複製貼上)
+    // =========================================================================
+    const FIREBASE_CONFIG = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT_ID.firebasestorage.app",
+      messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+      appId: "YOUR_APP_ID"
     };
 
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    let analytics = null;
-    try {
-      analytics = getAnalytics(app);
-    } catch (e) {
-      // Analytics skipped in unsupported environments
-    }
-    const db = getFirestore(app);
-    const ROSTER_COLLECTION = "midterm_warning_roster";
-
-    // =========================================================================
-    // 1. 內建預設全校名冊資料 (雲端尚未建檔時自動初始化寫入，亦可作為離線備援)
-    // =========================================================================
-    const BUILTIN_ROSTER_DATA = [
-      { className: `一機甲`, studentId: `513101`, studentName: `林冠宇`, subject: `國語文`, teacherName: `郭老師`, teacherCodes: [`CH8105`] },
-      { className: `一機甲`, studentId: `513102`, studentName: `陳宥廷`, subject: `國語文`, teacherName: `郭老師`, teacherCodes: [`CH8105`] },
-      { className: `一機甲`, studentId: `513103`, studentName: `張雅筑`, subject: `國語文`, teacherName: `郭老師`, teacherCodes: [`CH8105`] },
-      { className: `一機甲`, studentId: `513104`, studentName: `王柏翰`, subject: `國語文`, teacherName: `郭老師`, teacherCodes: [`CH8105`] },
-      { className: `一機甲`, studentId: `513101`, studentName: `林冠宇`, subject: `機械基礎實習`, teacherName: `賴老師,李老師`, teacherCodes: [`EE0825`, `MI3133`] },
-      { className: `一機甲`, studentId: `513102`, studentName: `陳宥廷`, subject: `機械基礎實習`, teacherName: `賴老師,李老師`, teacherCodes: [`EE0825`, `MI3133`] },
-      { className: `一機甲`, studentId: `513103`, studentName: `張雅筑`, subject: `機械基礎實習`, teacherName: `賴老師,李老師`, teacherCodes: [`EE0825`, `MI3133`] },
-      { className: `二電乙`, studentId: `413201`, studentName: `黃子軒`, subject: `基本電學`, teacherName: `賴老師`, teacherCodes: [`EE0825`] },
-      { className: `二電乙`, studentId: `413202`, studentName: `吳欣怡`, subject: `基本電學`, teacherName: `賴老師`, teacherCodes: [`EE0825`] },
-      { className: `二電乙`, studentId: `413203`, studentName: `周宇翔`, subject: `基本電學`, teacherName: `賴老師`, teacherCodes: [`EE0825`] },
-      { className: `三室設`, studentId: `313301`, studentName: `蔡佳蓉`, subject: `國語文`, teacherName: `郭老師`, teacherCodes: [`CH8105`] },
-      { className: `三室設`, studentId: `313302`, studentName: `許哲瑋`, subject: `國語文`, teacherName: `郭老師`, teacherCodes: [`CH8105`] }
-    ];
-
-    const STORAGE_DB_KEY = `midterm_warning_fb_cache_v1`;
-    const STORAGE_SESSION_KEY = `midterm_warning_fb_session_v1`;
+    const FIRESTORE_COLLECTION = `records`;
+    const SESSION_STORAGE_KEY = `midterm_warning_session_v1`;
     const ADMIN_PASSWORD = `ssivs210`;
     const MISSING_OPTIONS = [`0 份`, `1 份`, `2 份`, `3 份`, `4 份`, `5 份`, `6 份以上`];
 
+    let db = null;
+    let unsubscribeSnapshot = null;
+
     const appState = {
       records: [],
+      isCloudReady: false,
       session: {
-        role: null,
+        role: null, // 'teacher' | 'admin' | null
         code: ``
       },
       pendingImport: null,
       activeDetailId: null,
-      currentFilteredIds: [],
-      firebaseOnline: false,
-      seededInitial: false
+      currentFilteredIds: []
     };
 
-    function setSyncStatus(text, isOnline) {
-      appState.firebaseOnline = isOnline;
-      const el = document.getElementById(`firebase-sync-status`);
-      if (!el) return;
-      el.textContent = text;
-      el.classList.remove(`is-online`, `is-offline`);
-      el.classList.add(isOnline ? `is-online` : `is-offline`);
-    }
-
     // =========================================================================
-    // 2. INITIALIZATION & FIREBASE CLOUD REALTIME SYNC
+    // 2. INITIALIZATION & FIRESTORE REALTIME SYNC
     // =========================================================================
     function initApp() {
+      // Restore local login session (per-browser)
       try {
-        const rawCache = localStorage.getItem(STORAGE_DB_KEY);
-        if (rawCache) {
-          const parsed = JSON.parse(rawCache);
-          if (Array.isArray(parsed)) appState.records = parsed.map(normalizeRecord);
-        } else {
-          appState.records = BUILTIN_ROSTER_DATA.map(function (item, idx) {
-            return normalizeRecord(Object.assign({ id: `builtin_${idx + 1}` }, item));
-          });
-        }
-
-        const rawSession = sessionStorage.getItem(STORAGE_SESSION_KEY);
+        const rawSession = sessionStorage.getItem(SESSION_STORAGE_KEY);
         if (rawSession) {
-          const s = JSON.parse(rawSession);
-          if (s && s.role) appState.session = { role: s.role, code: String(s.code || ``) };
+          const parsed = JSON.parse(rawSession);
+          if (parsed && parsed.role) {
+            appState.session = { role: parsed.role, code: String(parsed.code || ``) };
+          }
         }
+      } catch (e) {}
+
+      const isConfigured = FIREBASE_CONFIG.apiKey && !FIREBASE_CONFIG.apiKey.startsWith(`YOUR_`);
+      if (!isConfigured) {
+        document.getElementById(`firebase-config-warning`).classList.remove(`hidden`);
+        setSyncStatus(false, `未設定 Firebase`);
+        renderAll();
+        return;
+      }
+
+      try {
+        if (!firebase.apps.length) {
+          firebase.initializeApp(FIREBASE_CONFIG);
+        }
+        db = firebase.firestore();
+
+        // Listen to realtime changes across all teachers & admin
+        unsubscribeSnapshot = db.collection(FIRESTORE_COLLECTION).onSnapshot(
+          function (snapshot) {
+            const list = [];
+            snapshot.forEach(function (doc) {
+              const data = doc.data() || {};
+              data.id = doc.id;
+              list.push(normalizeRecord(data));
+            });
+            // Keep stable sort by className -> studentId -> subject
+            list.sort(function (a, b) {
+              return a.className.localeCompare(b.className, `zh-Hant`) ||
+                     a.studentId.localeCompare(b.studentId) ||
+                     a.subject.localeCompare(b.subject, `zh-Hant`);
+            });
+            appState.records = list;
+            appState.isCloudReady = true;
+            setSyncStatus(true, `雲端即時同步中`);
+
+            // Skip full table re-render if user is actively typing inside a table text input
+            const activeEl = document.activeElement;
+            const isTypingInTable = activeEl && activeEl.classList && activeEl.classList.contains(`tbl-input`);
+            if (isTypingInTable) {
+              document.getElementById(`header-roster-count`).textContent = `全校名冊 ${appState.records.length} 筆`;
+              if (appState.session.role === `teacher`) renderTeacherKpis();
+              if (appState.session.role === `admin`) renderAdminKpis();
+            } else {
+              renderAll();
+            }
+          },
+          function (error) {
+            console.error(`Firestore snapshot error:`, error);
+            setSyncStatus(false, `資料庫連線異常`);
+            showToast(`Firestore 連線失敗：${error.message}`, `error`);
+          }
+        );
       } catch (err) {
-        // Ignore cache read error
+        console.error(err);
+        setSyncStatus(false, `初始化失敗`);
+        showToast(`Firebase 初始化失敗，請檢查設定金鑰。`, `error`);
       }
 
       renderAll();
       refreshIcons();
-
-      // Subscribe to Firebase Firestore realtime updates
-      try {
-        const colRef = collection(db, ROSTER_COLLECTION);
-        onSnapshot(colRef, async function (snapshot) {
-          setSyncStatus(`Firebase 雲端已連線`, true);
-
-          if (snapshot.empty && !appState.seededInitial && BUILTIN_ROSTER_DATA.length > 0) {
-            appState.seededInitial = true;
-            const initialList = BUILTIN_ROSTER_DATA.map(function (item, idx) {
-              return normalizeRecord(Object.assign({ id: `builtin_${idx + 1}` }, item));
-            });
-            await syncAllRecordsToFirestore(initialList, []);
-            return;
-          }
-
-          appState.seededInitial = true;
-          const cloudList = [];
-          snapshot.forEach(function (docSnap) {
-            cloudList.push(normalizeRecord(Object.assign({ id: docSnap.id }, docSnap.data())));
-          });
-
-          cloudList.sort(function (a, b) {
-            return a.className.localeCompare(b.className, `zh-Hant`) ||
-                   a.studentId.localeCompare(b.studentId) ||
-                   a.subject.localeCompare(b.subject, `zh-Hant`);
-          });
-
-          appState.records = cloudList;
-          saveLocalCache();
-          renderAll();
-        }, function (err) {
-          setSyncStatus(`雲端連線受限 (本機模式)`, false);
-          showToast(`Firebase Firestore 讀取受限（請確認 Console 安全規則已開啟）：${err.message}`, `error`);
-        });
-      } catch (err) {
-        setSyncStatus(`離線本機模式`, false);
-      }
     }
 
-    function saveLocalCache() {
+    function setSyncStatus(isOnline, text) {
+      const dot = document.getElementById(`firebase-sync-dot`);
+      const label = document.getElementById(`firebase-sync-text`);
+      if (dot) dot.classList.toggle(`is-offline`, !isOnline);
+      if (label) label.textContent = text;
+    }
+
+    function saveSessionLocally() {
       try {
-        localStorage.setItem(STORAGE_DB_KEY, JSON.stringify(appState.records));
         if (appState.session.role) {
-          sessionStorage.setItem(STORAGE_SESSION_KEY, JSON.stringify(appState.session));
+          sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(appState.session));
         } else {
-          sessionStorage.removeItem(STORAGE_SESSION_KEY);
+          sessionStorage.removeItem(SESSION_STORAGE_KEY);
         }
+      } catch (e) {}
+    }
+
+    // Firestore Granular Operations
+    async function firestorePatchRecord(id, partialFields) {
+      if (!db) return;
+      try {
+        await db.collection(FIRESTORE_COLLECTION).doc(id).update(partialFields);
       } catch (err) {
-        // Ignore quota error
+        showToast(`雲端儲存失敗，請檢查網路連線：${err.message}`, `error`);
       }
     }
 
-    async function syncSingleRecordToFirestore(rec) {
-      saveLocalCache();
-      try {
-        const ref = doc(db, ROSTER_COLLECTION, rec.id);
-        await setDoc(ref, Object.assign({}, rec), { merge: true });
-      } catch (err) {
-        setSyncStatus(`雲端寫入失敗`, false);
-        showToast(`雲端同步失敗（請檢查 Firestore 權限規則）：${err.message}`, `error`);
-      }
+    async function firestoreSetRecord(rec) {
+      if (!db) return;
+      const payload = Object.assign({}, rec);
+      delete payload.id;
+      await db.collection(FIRESTORE_COLLECTION).doc(rec.id).set(payload);
     }
 
-    async function deleteSingleRecordFromFirestore(id) {
-      saveLocalCache();
-      try {
-        await deleteDoc(doc(db, ROSTER_COLLECTION, id));
-      } catch (err) {
-        showToast(`雲端刪除失敗：${err.message}`, `error`);
-      }
+    async function firestoreDeleteRecord(id) {
+      if (!db) return;
+      await db.collection(FIRESTORE_COLLECTION).doc(id).delete();
     }
 
-    async function syncAllRecordsToFirestore(newList, oldIds) {
-      saveLocalCache();
-      try {
-        const newIdSet = new Set(newList.map(function (r) { return r.id; }));
-        const toDelete = (oldIds || []).filter(function (id) { return !newIdSet.has(id); });
-
-        // Firestore writeBatch limit is 500 ops per batch
-        const ops = [];
-        for (let i = 0; i < toDelete.length; i++) {
-          ops.push({ type: `delete`, id: toDelete[i] });
-        }
-        for (let i = 0; i < newList.length; i++) {
-          ops.push({ type: `set`, rec: newList[i] });
-        }
-
-        for (let offset = 0; offset < ops.length; offset += 450) {
-          const chunk = ops.slice(offset, offset + 450);
-          const batch = writeBatch(db);
-          for (let j = 0; j < chunk.length; j++) {
-            const op = chunk[j];
-            if (op.type === `delete`) {
-              batch.delete(doc(db, ROSTER_COLLECTION, op.id));
-            } else {
-              batch.set(doc(db, ROSTER_COLLECTION, op.rec.id), Object.assign({}, op.rec));
-            }
+    // Batch write helper (Firestore limits 500 ops per batch)
+    async function firestoreCommitOps(ops) {
+      if (!db || ops.length === 0) return;
+      const CHUNK_SIZE = 450;
+      for (let i = 0; i < ops.length; i += CHUNK_SIZE) {
+        const chunk = ops.slice(i, i + CHUNK_SIZE);
+        const batch = db.batch();
+        for (let j = 0; j < chunk.length; j++) {
+          const op = chunk[j];
+          const ref = db.collection(FIRESTORE_COLLECTION).doc(op.id);
+          if (op.type === `set`) {
+            const payload = Object.assign({}, op.data);
+            delete payload.id;
+            batch.set(ref, payload);
+          } else if (op.type === `update`) {
+            batch.update(ref, op.data);
+          } else if (op.type === `delete`) {
+            batch.delete(ref);
           }
-          await batch.commit();
         }
-      } catch (err) {
-        setSyncStatus(`雲端批次寫入失敗`, false);
-        showToast(`雲端批次同步失敗（請檢查 Firestore 權限規則）：${err.message}`, `error`);
+        await batch.commit();
       }
     }
 
@@ -1326,12 +1279,17 @@
       msgEl.classList.add(`hidden`);
 
       if (!code) {
-        msgEl.textContent = `請輸入教師代碼或課程代碼。`;
+        msgEl.textContent = `請輸入教師代碼或課程代碼（例如 CH8105、EE0825）。`;
+        msgEl.classList.remove(`hidden`);
+        return;
+      }
+      if (!appState.isCloudReady) {
+        msgEl.textContent = `資料庫尚未完成連線，請稍候或檢查 Firebase 設定。`;
         msgEl.classList.remove(`hidden`);
         return;
       }
       if (appState.records.length === 0) {
-        msgEl.textContent = `目前名冊為空白，請先由管理者登入後台匯入 .xlsx 檔案或還原內建預設資料。`;
+        msgEl.textContent = `雲端資料庫目前尚未匯入任何名冊資料，請先由管理者登入後台匯入 .xlsx 檔案。`;
         msgEl.classList.remove(`hidden`);
         return;
       }
@@ -1341,14 +1299,14 @@
         const noCodeCount = appState.records.filter(function (r) { return r.teacherCodes.length === 0; }).length;
         msgEl.textContent = noCodeCount > 0
           ? `查無代碼「${code}」所屬的班級或學生名冊（目前有 ${noCodeCount} 筆資料尚未設定教師代碼，請通知管理者補登代碼）。`
-          : `查無代碼「${code}」所屬的班級或學生名冊，請確認代碼是否正確。`;
+          : `查無代碼「${code}」所屬的班級或學生名冊，請確認代碼是否正確或聯繫教務處管理者補登代碼。`;
         msgEl.classList.remove(`hidden`);
         return;
       }
 
       appState.session = { role: `teacher`, code: code };
       input.value = ``;
-      saveLocalCache();
+      saveSessionLocally();
       renderAll();
       showToast(`已登入教師代碼 ${code}（共 ${matched.length} 筆任教名冊）`, `success`);
     }
@@ -1369,7 +1327,7 @@
 
       appState.session = { role: `admin`, code: `ADMIN` };
       input.value = ``;
-      saveLocalCache();
+      saveSessionLocally();
       renderAll();
       showToast(`已登入管理者後台`, `success`);
     }
@@ -1377,7 +1335,7 @@
     function handleLogout() {
       closeDetailDrawer();
       appState.session = { role: null, code: `` };
-      saveLocalCache();
+      saveSessionLocally();
       renderAll();
       showToast(`已登出系統`, `success`);
     }
@@ -1411,7 +1369,14 @@
     // =========================================================================
     function renderAll() {
       const countEl = document.getElementById(`header-roster-count`);
-      if (countEl) countEl.textContent = `全校名冊 ${appState.records.length} 筆`;
+      if (countEl) {
+        countEl.textContent = appState.isCloudReady ? `全校名冊 ${appState.records.length} 筆` : `連線資料庫中...`;
+      }
+
+      const emptyNotice = document.getElementById(`login-empty-notice`);
+      if (emptyNotice) {
+        emptyNotice.classList.toggle(`hidden`, !appState.isCloudReady || appState.records.length > 0);
+      }
 
       const badge = document.getElementById(`session-badge`);
       const badgeText = document.getElementById(`session-badge-text`);
@@ -1672,7 +1637,7 @@
     }
 
     // =========================================================================
-    // 6. INLINE EDITING & AUDIT TRAIL
+    // 6. INLINE EDITING & AUDIT TRAIL (Granular Firestore Update)
     // =========================================================================
     function findRecordById(id) {
       for (let i = 0; i < appState.records.length; i++) {
@@ -1681,25 +1646,32 @@
       return null;
     }
 
-    async function handleInlineChange(id, field, value) {
+    function handleInlineChange(id, field, value) {
       const rec = findRecordById(id);
       if (!rec) return;
 
-      if (field === `noHomework`) rec.noHomework = Boolean(value);
-      else if (field === `submitted`) rec.submitted = Boolean(value);
-      else if (field === `sleeping`) rec.sleeping = Boolean(value);
-      else if (field === `missingCount`) rec.missingCount = normalizeMissingValue(value);
-      else if (field === `missingContent`) rec.missingContent = String(value || ``).trim();
-      else if (field === `suggestions`) rec.suggestions = String(value || ``).trim();
+      let cleanVal = value;
+      if (field === `noHomework` || field === `submitted` || field === `sleeping`) {
+        cleanVal = Boolean(value);
+      } else if (field === `missingCount`) {
+        cleanVal = normalizeMissingValue(value);
+      } else if (field === `missingContent` || field === `suggestions`) {
+        cleanVal = String(value || ``).trim();
+      }
 
-      rec.lastModifiedAt = formatNowTimestamp();
-      rec.lastModifiedBy = appState.session.code || `USER`;
+      const nowStr = formatNowTimestamp();
+      const editorCode = appState.session.code || `USER`;
 
+      rec[field] = cleanVal;
+      rec.lastModifiedAt = nowStr;
+      rec.lastModifiedBy = editorCode;
+
+      // Optimistic DOM feedback
       const timeEl = document.getElementById(`time-${id}`);
       const byEl = document.getElementById(`by-${id}`);
       const rowEl = document.getElementById(`row-${id}`);
-      if (timeEl) timeEl.textContent = rec.lastModifiedAt;
-      if (byEl) byEl.innerHTML = `<span class="code-tag">${escapeHtml(rec.lastModifiedBy)}</span>`;
+      if (timeEl) timeEl.textContent = nowStr;
+      if (byEl) byEl.innerHTML = `<span class="code-tag">${escapeHtml(editorCode)}</span>`;
       if (rowEl) {
         const hasMissing = rec.missingCount !== `0 份`;
         rowEl.classList.remove(`is-flagged`, `is-high-alert`);
@@ -1712,7 +1684,13 @@
       if (appState.session.role === `teacher`) renderTeacherKpis();
       if (appState.session.role === `admin`) renderAdminKpis();
 
-      await syncSingleRecordToFirestore(rec);
+      // Send only modified fields to Firestore
+      const patch = {
+        lastModifiedAt: nowStr,
+        lastModifiedBy: editorCode
+      };
+      patch[field] = cleanVal;
+      firestorePatchRecord(id, patch);
     }
 
     // =========================================================================
@@ -1813,32 +1791,26 @@
       const rec = findRecordById(appState.activeDetailId);
       if (!rec) return;
 
-      rec.noHomework = document.getElementById(`d-check-nohw`).checked;
-      rec.submitted = document.getElementById(`d-check-submitted`).checked;
-      rec.sleeping = document.getElementById(`d-check-sleep`).checked;
-      rec.missingCount = normalizeMissingValue(document.getElementById(`d-select-missing`).value);
-      rec.missingContent = document.getElementById(`d-missing-content`).value.trim();
-      rec.suggestions = document.getElementById(`d-suggestions`).value.trim();
+      const patch = {
+        noHomework: document.getElementById(`d-check-nohw`).checked,
+        submitted: document.getElementById(`d-check-submitted`).checked,
+        sleeping: document.getElementById(`d-check-sleep`).checked,
+        missingCount: normalizeMissingValue(document.getElementById(`d-select-missing`).value),
+        missingContent: document.getElementById(`d-missing-content`).value.trim(),
+        suggestions: document.getElementById(`d-suggestions`).value.trim(),
+        lastModifiedAt: formatNowTimestamp(),
+        lastModifiedBy: appState.session.code || `USER`
+      };
 
       if (appState.session.role === `admin`) {
-        rec.teacherCodes = parseCodes(document.getElementById(`d-codes-input`).value);
+        patch.teacherCodes = parseCodes(document.getElementById(`d-codes-input`).value);
       }
 
-      rec.lastModifiedAt = formatNowTimestamp();
-      rec.lastModifiedBy = appState.session.code || `USER`;
+      Object.assign(rec, patch);
+      document.getElementById(`d-last-time`).textContent = patch.lastModifiedAt;
+      document.getElementById(`d-last-by`).textContent = patch.lastModifiedBy;
 
-      document.getElementById(`d-last-time`).textContent = rec.lastModifiedAt;
-      document.getElementById(`d-last-by`).textContent = rec.lastModifiedBy;
-
-      if (appState.session.role === `teacher`) {
-        renderTeacherKpis();
-        renderTeacherTable();
-      } else if (appState.session.role === `admin`) {
-        renderAdminKpis();
-        renderAdminTable();
-      }
-
-      await syncSingleRecordToFirestore(rec);
+      await firestorePatchRecord(rec.id, patch);
       showToast(`已儲存並同步 ${rec.studentName}（${rec.subject}）預警紀錄`, `success`);
     }
 
@@ -1858,94 +1830,41 @@
         return;
       }
       const targetId = appState.activeDetailId;
-      appState.records = appState.records.filter(function (r) { return r.id !== targetId; });
       closeDetailDrawer();
-      renderAll();
-      await deleteSingleRecordFromFirestore(targetId);
-      showToast(`已自雲端刪除該筆學生課程紀錄`, `success`);
+      try {
+        await firestoreDeleteRecord(targetId);
+        showToast(`已從雲端刪除該筆學生課程紀錄`, `success`);
+      } catch (err) {
+        showToast(`刪除失敗：${err.message}`, `error`);
+      }
     }
 
     // =========================================================================
-    // 8. ADMIN MANAGEMENT & STATIC CODE GENERATOR
+    // 8. ADMIN MANAGEMENT ACTIONS
     // =========================================================================
     async function handleClearAllRecords(btn) {
       if (btn.dataset.armed !== `true`) {
         btn.dataset.armed = `true`;
-        btn.innerHTML = `<span>再次點擊確認清空 (${appState.records.length} 筆)</span>`;
+        btn.innerHTML = `<span>再次點擊確認清空全部 (${appState.records.length} 筆)</span>`;
         setTimeout(function () {
           if (btn && btn.dataset.armed === `true`) {
             btn.dataset.armed = `false`;
-            btn.innerHTML = `<i data-lucide="trash-2" aria-hidden="true"></i><span>清空目前名冊</span>`;
+            btn.innerHTML = `<i data-lucide="trash-2" aria-hidden="true"></i><span>清空全校名冊</span>`;
             refreshIcons();
           }
         }, 4500);
         return;
       }
       btn.dataset.armed = `false`;
-      btn.innerHTML = `<i data-lucide="trash-2" aria-hidden="true"></i><span>清空目前名冊</span>`;
-      const oldIds = appState.records.map(function (r) { return r.id; });
-      appState.records = [];
-      appState.seededInitial = true;
-      renderAll();
-      await syncAllRecordsToFirestore([], oldIds);
-      showToast(`已清空全校名冊`, `success`);
-    }
+      btn.innerHTML = `<i data-lucide="trash-2" aria-hidden="true"></i><span>清空全校名冊</span>`;
+      refreshIcons();
 
-    async function handleResetToBuiltin(btn) {
-      if (btn.dataset.armed !== `true`) {
-        btn.dataset.armed = `true`;
-        btn.textContent = `再次點擊確認還原內建資料`;
-        setTimeout(function () {
-          if (btn && btn.dataset.armed === `true`) {
-            btn.dataset.armed = `false`;
-            btn.innerHTML = `<i data-lucide="rotate-ccw" aria-hidden="true"></i><span>還原內建資料</span>`;
-            refreshIcons();
-          }
-        }, 4500);
-        return;
-      }
-      btn.dataset.armed = `false`;
-      const oldIds = appState.records.map(function (r) { return r.id; });
-      const newList = BUILTIN_ROSTER_DATA.map(function (item, idx) {
-        return normalizeRecord(Object.assign({ id: `builtin_${idx + 1}` }, item));
-      });
-      appState.records = newList;
-      renderAll();
-      await syncAllRecordsToFirestore(newList, oldIds);
-      showToast(`已還原為系統內建預設名冊並同步至雲端（${newList.length} 筆）`, `success`);
-    }
-
-    async function copyBuiltinCodeSnippet() {
-      if (appState.records.length === 0) {
-        showToast(`目前名冊為空，無資料可產出`, `error`);
-        return;
-      }
-      const cleanList = appState.records.map(function (r) {
-        const obj = {
-          className: r.className,
-          studentId: r.studentId,
-          studentName: r.studentName,
-          subject: r.subject,
-          teacherName: r.teacherName,
-          teacherCodes: r.teacherCodes
-        };
-        if (r.noHomework) obj.noHomework = true;
-        if (r.submitted) obj.submitted = true;
-        if (r.missingCount && r.missingCount !== `0 份`) obj.missingCount = r.missingCount;
-        if (r.sleeping) obj.sleeping = true;
-        if (r.missingContent) obj.missingContent = r.missingContent;
-        if (r.suggestions) obj.suggestions = r.suggestions;
-        if (r.lastModifiedAt) obj.lastModifiedAt = r.lastModifiedAt;
-        if (r.lastModifiedBy) obj.lastModifiedBy = r.lastModifiedBy;
-        return obj;
-      });
-      const snippet = `const BUILTIN_ROSTER_DATA = ${JSON.stringify(cleanList, null, 2)};`;
       try {
-        await navigator.clipboard.writeText(snippet);
-        showToast(`已複製 ${cleanList.length} 筆內建資料碼至剪貼簿！`, `success`);
+        const ops = appState.records.map(function (r) { return { type: `delete`, id: r.id }; });
+        await firestoreCommitOps(ops);
+        showToast(`已清空雲端全校預警名冊`, `success`);
       } catch (err) {
-        downloadBinaryBlob(new TextEncoder().encode(snippet), `BUILTIN_ROSTER_DATA.txt`, `text/plain;charset=utf-8`);
-        showToast(`已下載 BUILTIN_ROSTER_DATA.txt`, `success`);
+        showToast(`清空失敗：${err.message}`, `error`);
       }
     }
 
@@ -1984,12 +1903,14 @@
         lastModifiedBy: ``
       });
 
-      appState.records.push(newRec);
-      document.getElementById(`add-sid`).value = ``;
-      document.getElementById(`add-sname`).value = ``;
-      renderAll();
-      await syncSingleRecordToFirestore(newRec);
-      showToast(`已新增並同步 ${cls} ${sname}（${sub}）`, `success`);
+      try {
+        await firestoreSetRecord(newRec);
+        document.getElementById(`add-sid`).value = ``;
+        document.getElementById(`add-sname`).value = ``;
+        showToast(`已新增 ${cls} ${sname}（${sub}）至雲端`, `success`);
+      } catch (err) {
+        showToast(`新增失敗：${err.message}`, `error`);
+      }
     }
 
     // =========================================================================
@@ -2082,20 +2003,20 @@
         return;
       }
 
-      const modifiedList = [];
+      const ops = [];
       for (let i = 0; i < appState.records.length; i++) {
         const r = appState.records[i];
         if (`${r.teacherName}｜${r.subject}` === sel.value) {
-          r.teacherCodes = codes.slice();
-          modifiedList.push(r);
+          ops.push({ type: `update`, id: r.id, data: { teacherCodes: codes.slice() } });
         }
       }
 
-      renderAll();
-      if (modifiedList.length > 0) {
-        await syncAllRecordsToFirestore(modifiedList, []);
+      try {
+        await firestoreCommitOps(ops);
+        showToast(`已將代碼 ${codes.join(`,`)} 批次同步至 ${ops.length} 筆雲端紀錄`, `success`);
+      } catch (err) {
+        showToast(`批次更新失敗：${err.message}`, `error`);
       }
-      showToast(`已將代碼 ${codes.join(`,`)} 套用並同步至 ${modifiedList.length} 筆紀錄`, `success`);
     }
 
     // =========================================================================
@@ -2606,84 +2527,57 @@
       const incoming = appState.pendingImport;
       if (!incoming || incoming.length === 0) return;
 
-      const oldIds = appState.records.map(function (r) { return r.id; });
+      const btnReplace = document.getElementById(`btn-commit-replace`);
+      const btnMerge = document.getElementById(`btn-commit-merge`);
+      if (btnReplace) btnReplace.disabled = true;
+      if (btnMerge) btnMerge.disabled = true;
 
-      if (strategy === `replace`) {
-        appState.records = incoming.slice();
-      } else {
-        const map = {};
-        for (let i = 0; i < appState.records.length; i++) {
-          const ex = appState.records[i];
-          map[`${ex.studentId}__${ex.subject}`] = ex;
-        }
-        for (let i = 0; i < incoming.length; i++) {
-          const inc = incoming[i];
-          const key = `${inc.studentId}__${inc.subject}`;
-          if (map[key]) {
-            map[key].className = inc.className;
-            map[key].studentName = inc.studentName;
-            map[key].teacherName = inc.teacherName;
-            if (inc.teacherCodes.length > 0) map[key].teacherCodes = inc.teacherCodes;
-          } else {
-            appState.records.push(inc);
-            map[key] = inc;
+      try {
+        const ops = [];
+        if (strategy === `replace`) {
+          for (let i = 0; i < appState.records.length; i++) {
+            ops.push({ type: `delete`, id: appState.records[i].id });
+          }
+          for (let i = 0; i < incoming.length; i++) {
+            ops.push({ type: `set`, id: incoming[i].id, data: incoming[i] });
+          }
+        } else {
+          const map = {};
+          for (let i = 0; i < appState.records.length; i++) {
+            const ex = appState.records[i];
+            map[`${ex.studentId}__${ex.subject}`] = ex;
+          }
+          for (let i = 0; i < incoming.length; i++) {
+            const inc = incoming[i];
+            const key = `${inc.studentId}__${inc.subject}`;
+            if (map[key]) {
+              const patch = {
+                className: inc.className,
+                studentName: inc.studentName,
+                teacherName: inc.teacherName
+              };
+              if (inc.teacherCodes.length > 0) patch.teacherCodes = inc.teacherCodes;
+              ops.push({ type: `update`, id: map[key].id, data: patch });
+            } else {
+              ops.push({ type: `set`, id: inc.id, data: inc });
+            }
           }
         }
+
+        await firestoreCommitOps(ops);
+        appState.pendingImport = null;
+        document.getElementById(`import-preview-box`).classList.add(`hidden`);
+        switchAdminTab(`roster`);
+        showToast(`已成功批次同步 ${incoming.length} 筆名冊至雲端`, `success`);
+      } catch (err) {
+        showToast(`雲端批次寫入失敗：${err.message}`, `error`);
+      } finally {
+        if (btnReplace) btnReplace.disabled = false;
+        if (btnMerge) btnMerge.disabled = false;
       }
-
-      appState.pendingImport = null;
-      const previewBox = document.getElementById(`import-preview-box`);
-      if (previewBox) previewBox.classList.add(`hidden`);
-
-      renderAll();
-      switchAdminTab(`roster`);
-      await syncAllRecordsToFirestore(appState.records, strategy === `replace` ? oldIds : []);
-      showToast(`已成功匯入並同步 ${incoming.length} 筆名冊資料至雲端`, `success`);
     }
 
-    // Expose handlers to global window for inline HTML attributes
-    Object.assign(window, {
-      switchLoginTab,
-      handleTeacherLogin,
-      handleAdminLogin,
-      handleLogout,
-      switchAdminTab,
-      renderTeacherTable,
-      renderAdminTable,
-      handleInlineChange,
-      openDetailDrawer,
-      closeDetailDrawer,
-      handleDrawerBackdropClick,
-      syncDetailTileStyles,
-      setDetailMissing,
-      syncDetailMissingSelect,
-      appendQuickText,
-      saveDetailDrawer,
-      navigateDetailRecord,
-      deleteDetailRecord,
-      handleClearAllRecords,
-      handleResetToBuiltin,
-      copyBuiltinCodeSnippet,
-      handleAddSingleRecord,
-      prefillBatchCode,
-      applyBatchTeacherCode,
-      downloadImportTemplateXlsx,
-      exportCurrentViewXlsx,
-      exportCurrentViewCsv,
-      triggerXlsxPicker,
-      handleDragOver,
-      handleDragLeave,
-      handleDropFile,
-      handleXlsxFileSelected,
-      cancelXlsxPreview,
-      commitXlsxImport
-    });
-
-    if (document.readyState === `loading`) {
-      window.addEventListener(`DOMContentLoaded`, initApp);
-    } else {
-      initApp();
-    }
+    window.addEventListener(`DOMContentLoaded`, initApp);
   </script>
 </body>
 </html>
