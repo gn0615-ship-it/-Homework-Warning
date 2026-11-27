@@ -108,7 +108,7 @@
     }
     .sync-pill.is-online { background: var(--positive-bg); color: var(--positive); }
     .sync-pill.is-syncing { background: var(--primary-container); color: var(--primary); }
-    .sync-pill.is-offline { background: var(--warning-bg); color: var(--warning); }
+    .sync-pill.is-offline { background: var(--error-bg); color: var(--error); font-weight: 500; }
 
     .headline {
       font-family: var(--font-headline); font-size: var(--display-size);
@@ -192,7 +192,25 @@
     }
     .notice-strip.is-success { border-left-color: var(--positive); }
     .notice-strip.is-warning { border-left-color: var(--warning); }
-    .notice-strip.is-error { border-left-color: var(--error); }
+    .notice-strip.is-error { border-left-color: var(--error); background: var(--error-bg); }
+
+    .sync-alert-box {
+      padding: var(--space-md);
+      background: var(--error-bg);
+      border-left: 4px solid var(--error);
+      display: grid;
+      gap: var(--space-sm);
+      font-size: 0.875rem;
+    }
+    .sync-alert-box pre {
+      margin: 0;
+      padding: var(--space-sm) var(--space-md);
+      background: var(--background);
+      border: var(--rule);
+      font-family: var(--font-label);
+      font-size: 0.75rem;
+      overflow-x: auto;
+    }
 
     .tabs-bar {
       display: flex; flex-wrap: wrap; gap: var(--space-lg);
@@ -381,6 +399,34 @@
       </div>
     </header>
 
+    <!-- CLOUD SYNC ERROR DIAGNOSTIC BANNER (SHOWN ONLY WHEN FIRESTORE FAILS) -->
+    <section id="sync-diagnostic-banner" class="sync-alert-box hidden" role="alert">
+      <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: var(--space-sm);">
+        <strong>⚠️ Firebase 雲端資料庫同步失敗：<span id="sync-diagnostic-reason">權限不足或尚未建立 Firestore 資料庫</span></strong>
+        <div class="toolbar-actions">
+          <button type="button" class="btn btn-secondary btn-compact" onclick="copyFirestoreRulesSnippet()">
+            <i data-lucide="copy" aria-hidden="true"></i>
+            <span>複製 Firestore 規則</span>
+          </button>
+          <button type="button" class="btn btn-primary btn-compact" onclick="forceManualResync()">
+            <i data-lucide="refresh-cw" aria-hidden="true"></i>
+            <span>重新測試連線</span>
+          </button>
+        </div>
+      </div>
+      <div class="field-hint" style="color: var(--on-surface);">
+        請至 Firebase Console（專案 <code>homework-warning-7c04d</code>）→ 左側選單「<strong>建構 &gt; Firestore Database</strong>」確認已建立資料庫，並於「<strong>規則 (Rules)</strong>」分頁貼上以下規則後點擊「發佈」：
+      </div>
+      <pre>rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /midterm_warning_roster/{docId} {
+      allow read, write: if true;
+    }
+  }
+}</pre>
+    </section>
+
     <!-- VIEW 1: LOGIN PORTAL -->
     <main id="view-login" class="login-grid">
       <section class="login-card" aria-label="系統登入驗證">
@@ -438,7 +484,7 @@
         <ul class="guide-list">
           <li>
             <strong>1. 跨裝置與多分頁雙向即時同步</strong>
-            <span class="field-hint">串接 Firebase Cloud Firestore（專案 homework-warning-7c04d）並啟用多分頁即時監聽，任何教師勾選或匯入異動皆會秒級同步至所有裝置。</span>
+            <span class="field-hint">串接 Firebase Cloud Firestore（專案 homework-warning-7c04d）與跨分頁即時通道，任何教師勾選或匯入異動皆會即時同步。</span>
           </li>
           <li>
             <strong>2. 完整 13 項資料庫欄位</strong>
@@ -534,6 +580,7 @@
           <table class="data-table">
             <thead>
               <tr>
+                <th class="col-center">操作</th>
                 <th>班級</th>
                 <th>學號</th>
                 <th>姓名</th>
@@ -547,7 +594,6 @@
                 <th>其他建議</th>
                 <th>最後修改時間</th>
                 <th>最後修改者</th>
-                <th class="col-center">操作</th>
               </tr>
             </thead>
             <tbody id="t-table-body"></tbody>
@@ -681,6 +727,7 @@
             <table class="data-table">
               <thead>
                 <tr>
+                  <th class="col-center">操作</th>
                   <th>班級</th>
                   <th>學號</th>
                   <th>姓名</th>
@@ -694,7 +741,6 @@
                   <th>其他建議</th>
                   <th>最後修改時間</th>
                   <th>最後修改者</th>
-                  <th class="col-center">操作</th>
                 </tr>
               </thead>
               <tbody id="a-table-body"></tbody>
@@ -990,24 +1036,20 @@
   <div id="toast-region" class="toast-region" aria-live="polite"></div>
 
   <script type="module">
-    // Import the functions you need from the SDKs you need
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-analytics.js";
     import {
-      initializeFirestore,
-      persistentLocalCache,
-      persistentMultipleTabManager,
+      getFirestore,
       collection,
       doc,
       setDoc,
       deleteDoc,
       onSnapshot,
       getDocs,
-      writeBatch,
-      serverTimestamp
+      writeBatch
     } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
-    // Your web app's Firebase configuration
+    // Firebase 專案設定 (homework-warning-7c04d)
     const firebaseConfig = {
       apiKey: "AIzaSyBeyziXZl5SD5uhl8mpRYmY_JyVB8ThRpo",
       authDomain: "homework-warning-7c04d.firebaseapp.com",
@@ -1018,20 +1060,10 @@
       measurementId: "G-9ZVTD1X3EC"
     };
 
-    // Initialize Firebase
     const app = initializeApp(firebaseConfig);
-    let analytics = null;
-    try {
-      analytics = getAnalytics(app);
-    } catch (e) {}
+    try { getAnalytics(app); } catch (e) {}
 
-    // 啟用多分頁即時持久快取，確保同瀏覽器多分頁與離線恢復皆能即時同步
-    const db = initializeFirestore(app, {
-      localCache: persistentLocalCache({
-        tabManager: persistentMultipleTabManager()
-      })
-    });
-
+    const db = getFirestore(app);
     const ROSTER_COLLECTION = "midterm_warning_roster";
 
     // =========================================================================
@@ -1052,8 +1084,8 @@
       { className: `三室設`, studentId: `313302`, studentName: `許哲瑋`, subject: `國語文`, teacherName: `郭老師`, teacherCodes: [`CH8105`] }
     ];
 
-    const STORAGE_DB_KEY = `midterm_warning_7c04d_cache_v1`;
-    const STORAGE_SESSION_KEY = `midterm_warning_7c04d_session_v1`;
+    const STORAGE_DB_KEY = `midterm_warning_7c04d_cache_v2`;
+    const STORAGE_SESSION_KEY = `midterm_warning_7c04d_session_v2`;
     const ADMIN_PASSWORD = `ssivs210`;
     const MISSING_OPTIONS = [`0 份`, `1 份`, `2 份`, `3 份`, `4 份`, `5 份`, `6 份以上`];
 
@@ -1064,10 +1096,22 @@
       activeDetailId: null,
       currentFilteredIds: [],
       firebaseOnline: false,
-      hasSyncedFromCloud: false,
-      unsubscribeSnapshot: null,
-      pendingWriteCount: 0
+      hasInitializedCloud: false,
+      unsubscribeSnapshot: null
     };
+
+    // 同瀏覽器多分頁即時廣播通道
+    let bc = null;
+    try {
+      bc = new BroadcastChannel(`midterm_warning_7c04d_sync`);
+      bc.onmessage = function (ev) {
+        if (ev.data && Array.isArray(ev.data.records)) {
+          appState.records = sortRecords(ev.data.records.map(normalizeRecord));
+          saveLocalCacheOnly();
+          smartRenderAfterSync();
+        }
+      };
+    } catch (e) {}
 
     function setSyncStatus(text, stateClass) {
       const el = document.getElementById(`firebase-sync-status`);
@@ -1077,15 +1121,49 @@
       if (stateClass) el.classList.add(stateClass);
     }
 
+    function showSyncDiagnostic(err) {
+      const box = document.getElementById(`sync-diagnostic-banner`);
+      const reasonEl = document.getElementById(`sync-diagnostic-reason`);
+      if (!box) return;
+      const code = err && err.code ? err.code : ``;
+      const msg = err && err.message ? err.message : String(err || ``);
+      let friendly = msg;
+      if (code === `permission-denied` || /permission/i.test(msg)) {
+        friendly = `Firestore 安全規則拒絕存取（permission-denied），請依下方步驟開放讀寫權限`;
+      } else if (code === `not-found` || /database.*not found/i.test(msg)) {
+        friendly = `專案中尚未建立 Firestore 資料庫，請先至 Firebase Console 建立 Firestore Database`;
+      } else if (code === `unavailable` || /offline|network/i.test(msg)) {
+        friendly = `無法連線至 Google Firestore 伺服器，請檢查網路或防火牆設定`;
+      }
+      if (reasonEl) reasonEl.textContent = friendly;
+      box.classList.remove(`hidden`);
+      refreshIcons();
+    }
+
+    function hideSyncDiagnostic() {
+      const box = document.getElementById(`sync-diagnostic-banner`);
+      if (box) box.classList.add(`hidden`);
+    }
+
+    async function copyFirestoreRulesSnippet() {
+      const rules = `rules_version = '2';\nservice cloud.firestore {\n  match /databases/{database}/documents {\n    match /midterm_warning_roster/{docId} {\n      allow read, write: if true;\n    }\n  }\n}`;
+      try {
+        await navigator.clipboard.writeText(rules);
+        showToast(`已複製 Firestore 安全規則，請至 Firebase Console 貼上並發佈`, `success`);
+      } catch (e) {
+        showToast(`請手動選取上方規則文字複製`, `error`);
+      }
+    }
+
     // =========================================================================
-    // 2. INITIALIZATION & REALTIME SYNC (FIRESTORE + CROSS-TAB STORAGE)
+    // 2. INITIALIZATION & REALTIME SYNC
     // =========================================================================
     function initApp() {
       try {
         const rawCache = localStorage.getItem(STORAGE_DB_KEY);
         if (rawCache) {
           const parsed = JSON.parse(rawCache);
-          if (Array.isArray(parsed)) appState.records = parsed.map(normalizeRecord);
+          if (Array.isArray(parsed)) appState.records = sortRecords(parsed.map(normalizeRecord));
         }
 
         const rawSession = sessionStorage.getItem(STORAGE_SESSION_KEY);
@@ -1104,12 +1182,6 @@
               smartRenderAfterSync();
             }
           } catch (e) {}
-        }
-      });
-
-      document.addEventListener(`visibilitychange`, function () {
-        if (!document.hidden && !appState.firebaseOnline) {
-          subscribeFirestoreRealtime();
         }
       });
 
@@ -1133,68 +1205,68 @@
       setSyncStatus(`Firebase 連線中...`, `is-syncing`);
       const colRef = collection(db, ROSTER_COLLECTION);
 
-      appState.unsubscribeSnapshot = onSnapshot(colRef, { includeMetadataChanges: true }, async function (snapshot) {
-        const isFromCache = snapshot.metadata.fromCache;
-        const hasPendingWrites = snapshot.metadata.hasPendingWrites;
+      appState.unsubscribeSnapshot = onSnapshot(colRef, async function (snapshot) {
+        appState.firebaseOnline = true;
+        hideSyncDiagnostic();
+        const nowStr = new Date().toLocaleTimeString(`zh-Hant`, { hour12: false });
+        setSyncStatus(`☁️ Firebase 即時同步中 (${nowStr})`, `is-online`);
 
-        if (hasPendingWrites) {
-          setSyncStatus(`☁️ 雲端同步寫入中...`, `is-syncing`);
-        } else if (isFromCache) {
-          setSyncStatus(`⚡ 已載入本機快取（等待雲端確認）`, `is-syncing`);
-        } else {
-          appState.firebaseOnline = true;
-          const nowStr = new Date().toLocaleTimeString(`zh-Hant`, { hour12: false });
-          setSyncStatus(`☁️ Firebase 即時同步中 (${nowStr})`, `is-online`);
-        }
-
-        if (snapshot.empty && !isFromCache && !appState.hasSyncedFromCloud) {
-          appState.hasSyncedFromCloud = true;
+        if (snapshot.empty && !appState.hasInitializedCloud) {
+          appState.hasInitializedCloud = true;
           const initialList = BUILTIN_ROSTER_DATA.map(function (item, idx) {
             return normalizeRecord(Object.assign({ id: `builtin_${idx + 1}` }, item));
           });
           appState.records = sortRecords(initialList);
-          saveLocalCache();
+          saveAndBroadcastLocal();
           renderAll();
           await syncAllRecordsToFirestore(initialList, []);
           return;
         }
 
-        if (!snapshot.empty || !isFromCache) {
-          appState.hasSyncedFromCloud = true;
-          const cloudList = [];
-          snapshot.forEach(function (docSnap) {
-            cloudList.push(normalizeRecord(Object.assign({ id: docSnap.id }, docSnap.data())));
-          });
+        appState.hasInitializedCloud = true;
+        const cloudList = [];
+        snapshot.forEach(function (docSnap) {
+          cloudList.push(normalizeRecord(Object.assign({ id: docSnap.id }, docSnap.data())));
+        });
 
-          appState.records = sortRecords(cloudList);
-          saveLocalCache();
-          smartRenderAfterSync();
-        }
+        appState.records = sortRecords(cloudList);
+        saveAndBroadcastLocal();
+        smartRenderAfterSync();
       }, function (err) {
         appState.firebaseOnline = false;
-        setSyncStatus(`⚠️ 雲端連線受限（點此重試）`, `is-offline`);
-        showToast(`Firebase 同步受限（請確認 Firestore 安全規則已開啟）：${err.message}`, `error`);
+        setSyncStatus(`⚠️ 雲端同步失敗（點此重試）`, `is-offline`);
+        showSyncDiagnostic(err);
       });
     }
 
     async function forceManualResync() {
-      setSyncStatus(`☁️ 手動重新同步中...`, `is-syncing`);
+      setSyncStatus(`☁️ 重新連線測試中...`, `is-syncing`);
       try {
         const snap = await getDocs(collection(db, ROSTER_COLLECTION));
         const list = [];
         snap.forEach(function (docSnap) {
           list.push(normalizeRecord(Object.assign({ id: docSnap.id }, docSnap.data())));
         });
-        appState.records = sortRecords(list);
+
+        if (list.length === 0 && appState.records.length > 0) {
+          await syncAllRecordsToFirestore(appState.records, []);
+        } else {
+          appState.records = sortRecords(list);
+          saveAndBroadcastLocal();
+          renderAll();
+        }
+
         appState.firebaseOnline = true;
-        saveLocalCache();
-        renderAll();
+        hideSyncDiagnostic();
         const nowStr = new Date().toLocaleTimeString(`zh-Hant`, { hour12: false });
         setSyncStatus(`☁️ Firebase 即時同步中 (${nowStr})`, `is-online`);
-        showToast(`已從 Firebase 雲端取得最新 ${list.length} 筆資料`, `success`);
+        showToast(`Firebase 雲端連線成功（共 ${appState.records.length} 筆資料）`, `success`);
+        subscribeFirestoreRealtime();
       } catch (err) {
-        setSyncStatus(`⚠️ 雲端連線受限（點此重試）`, `is-offline`);
-        showToast(`重新同步失敗：${err.message}`, `error`);
+        appState.firebaseOnline = false;
+        setSyncStatus(`⚠️ 雲端同步失敗（點此重試）`, `is-offline`);
+        showSyncDiagnostic(err);
+        showToast(`雲端連線失敗：${err.code || err.message}`, `error`);
       }
     }
 
@@ -1281,7 +1353,7 @@
       document.getElementById(`d-last-by`).textContent = rec.lastModifiedBy || `--`;
     }
 
-    function saveLocalCache() {
+    function saveLocalCacheOnly() {
       try {
         localStorage.setItem(STORAGE_DB_KEY, JSON.stringify(appState.records));
         if (appState.session.role) {
@@ -1292,35 +1364,67 @@
       } catch (err) {}
     }
 
+    function saveAndBroadcastLocal() {
+      saveLocalCacheOnly();
+      if (bc) {
+        try { bc.postMessage({ records: appState.records }); } catch (e) {}
+      }
+    }
+
+    function buildPlainFirestoreData(rec) {
+      return {
+        id: String(rec.id),
+        className: String(rec.className || ``),
+        studentId: String(rec.studentId || ``),
+        studentName: String(rec.studentName || ``),
+        subject: String(rec.subject || ``),
+        teacherName: String(rec.teacherName || ``),
+        teacherCodes: Array.isArray(rec.teacherCodes) ? rec.teacherCodes.slice() : [],
+        noHomework: Boolean(rec.noHomework),
+        submitted: Boolean(rec.submitted),
+        missingCount: String(rec.missingCount || `0 份`),
+        sleeping: Boolean(rec.sleeping),
+        missingContent: String(rec.missingContent || ``),
+        suggestions: String(rec.suggestions || ``),
+        lastModifiedAt: String(rec.lastModifiedAt || ``),
+        lastModifiedBy: String(rec.lastModifiedBy || ``)
+      };
+    }
+
     async function syncSingleRecordToFirestore(rec) {
-      saveLocalCache();
-      appState.pendingWriteCount++;
-      setSyncStatus(`☁️ 雲端同步寫入中...`, `is-syncing`);
+      saveAndBroadcastLocal();
+      setSyncStatus(`☁️ 雲端寫入中...`, `is-syncing`);
       try {
         const ref = doc(db, ROSTER_COLLECTION, rec.id);
-        const payload = Object.assign({}, rec, { _updatedAt: serverTimestamp() });
-        await setDoc(ref, payload, { merge: true });
+        await setDoc(ref, buildPlainFirestoreData(rec), { merge: true });
+        appState.firebaseOnline = true;
+        hideSyncDiagnostic();
+        const nowStr = new Date().toLocaleTimeString(`zh-Hant`, { hour12: false });
+        setSyncStatus(`☁️ Firebase 即時同步中 (${nowStr})`, `is-online`);
       } catch (err) {
-        setSyncStatus(`⚠️ 雲端寫入失敗（點此重試）`, `is-offline`);
-        showToast(`雲端同步失敗（請檢查 Firestore 權限規則）：${err.message}`, `error`);
-      } finally {
-        appState.pendingWriteCount = Math.max(0, appState.pendingWriteCount - 1);
+        appState.firebaseOnline = false;
+        setSyncStatus(`⚠️ 雲端同步失敗（點此重試）`, `is-offline`);
+        showSyncDiagnostic(err);
+        showToast(`雲端同步失敗：${err.code || err.message}`, `error`);
       }
     }
 
     async function deleteSingleRecordFromFirestore(id) {
-      saveLocalCache();
-      setSyncStatus(`☁️ 雲端同步刪除中...`, `is-syncing`);
+      saveAndBroadcastLocal();
+      setSyncStatus(`☁️ 雲端刪除中...`, `is-syncing`);
       try {
         await deleteDoc(doc(db, ROSTER_COLLECTION, id));
+        const nowStr = new Date().toLocaleTimeString(`zh-Hant`, { hour12: false });
+        setSyncStatus(`☁️ Firebase 即時同步中 (${nowStr})`, `is-online`);
       } catch (err) {
-        setSyncStatus(`⚠️ 雲端刪除失敗`, `is-offline`);
-        showToast(`雲端刪除失敗：${err.message}`, `error`);
+        setSyncStatus(`⚠️ 雲端同步失敗（點此重試）`, `is-offline`);
+        showSyncDiagnostic(err);
+        showToast(`雲端刪除失敗：${err.code || err.message}`, `error`);
       }
     }
 
     async function syncAllRecordsToFirestore(newList, oldIds) {
-      saveLocalCache();
+      saveAndBroadcastLocal();
       setSyncStatus(`☁️ 雲端批次同步中 (${newList.length} 筆)...`, `is-syncing`);
       try {
         const newIdSet = new Set(newList.map(function (r) { return r.id; }));
@@ -1330,22 +1434,28 @@
         for (let i = 0; i < toDelete.length; i++) ops.push({ type: `delete`, id: toDelete[i] });
         for (let i = 0; i < newList.length; i++) ops.push({ type: `set`, rec: newList[i] });
 
-        for (let offset = 0; offset < ops.length; offset += 450) {
-          const chunk = ops.slice(offset, offset + 450);
+        for (let offset = 0; offset < ops.length; offset += 400) {
+          const chunk = ops.slice(offset, offset + 400);
           const batch = writeBatch(db);
           for (let j = 0; j < chunk.length; j++) {
             const op = chunk[j];
             if (op.type === `delete`) {
               batch.delete(doc(db, ROSTER_COLLECTION, op.id));
             } else {
-              batch.set(doc(db, ROSTER_COLLECTION, op.rec.id), Object.assign({}, op.rec, { _updatedAt: serverTimestamp() }));
+              batch.set(doc(db, ROSTER_COLLECTION, op.rec.id), buildPlainFirestoreData(op.rec));
             }
           }
           await batch.commit();
         }
+        appState.firebaseOnline = true;
+        hideSyncDiagnostic();
+        const nowStr = new Date().toLocaleTimeString(`zh-Hant`, { hour12: false });
+        setSyncStatus(`☁️ Firebase 即時同步中 (${nowStr})`, `is-online`);
       } catch (err) {
-        setSyncStatus(`⚠️ 雲端批次寫入失敗`, `is-offline`);
-        showToast(`雲端批次同步失敗（請檢查 Firestore 權限規則）：${err.message}`, `error`);
+        appState.firebaseOnline = false;
+        setSyncStatus(`⚠️ 雲端同步失敗（點此重試）`, `is-offline`);
+        showSyncDiagnostic(err);
+        showToast(`雲端批次同步失敗：${err.code || err.message}`, `error`);
       }
     }
 
@@ -1497,7 +1607,7 @@
 
       appState.session = { role: `teacher`, code: code };
       input.value = ``;
-      saveLocalCache();
+      saveLocalCacheOnly();
       renderAll();
       showToast(`已登入教師代碼 ${code}（共 ${matched.length} 筆任教名冊）`, `success`);
     }
@@ -1518,7 +1628,7 @@
 
       appState.session = { role: `admin`, code: `ADMIN` };
       input.value = ``;
-      saveLocalCache();
+      saveLocalCacheOnly();
       renderAll();
       showToast(`已登入管理者後台`, `success`);
     }
@@ -1526,7 +1636,7 @@
     function handleLogout() {
       closeDetailDrawer();
       appState.session = { role: null, code: `` };
-      saveLocalCache();
+      saveLocalCacheOnly();
       renderAll();
       showToast(`已登出系統`, `success`);
     }
@@ -1773,6 +1883,11 @@
 
         rows.push(`
           <tr id="row-${escapeHtml(r.id)}" class="${rowClass}">
+            <td class="col-center cell-nowrap">
+              <button type="button" class="btn btn-ghost btn-compact" onclick="openDetailDrawer('${escapeHtml(r.id)}')">
+                <span>詳情</span>
+              </button>
+            </td>
             <td class="cell-nowrap">${escapeHtml(r.className)}</td>
             <td class="cell-nowrap mono">${escapeHtml(r.studentId)}</td>
             <td class="cell-nowrap"><strong>${escapeHtml(r.studentName)}</strong></td>
@@ -1809,11 +1924,6 @@
             </td>
             <td id="time-${escapeHtml(r.id)}" class="cell-time">${escapeHtml(r.lastModifiedAt || `--`)}</td>
             <td id="by-${escapeHtml(r.id)}" class="cell-nowrap mono">${r.lastModifiedBy ? `<span class="code-tag">${escapeHtml(r.lastModifiedBy)}</span>` : `--`}</td>
-            <td class="col-center cell-nowrap">
-              <button type="button" class="btn btn-ghost btn-compact" onclick="openDetailDrawer('${escapeHtml(r.id)}')">
-                <span>詳情</span>
-              </button>
-            </td>
           </tr>
         `);
       }
@@ -2034,7 +2144,7 @@
       btn.innerHTML = `<i data-lucide="trash-2" aria-hidden="true"></i><span>清空目前名冊</span>`;
       const oldIds = appState.records.map(function (r) { return r.id; });
       appState.records = [];
-      appState.hasSyncedFromCloud = true;
+      appState.hasInitializedCloud = true;
       renderAll();
       await syncAllRecordsToFirestore([], oldIds);
       showToast(`已清空全校名冊`, `success`);
@@ -2059,7 +2169,7 @@
         return normalizeRecord(Object.assign({ id: `builtin_${idx + 1}` }, item));
       });
       appState.records = sortRecords(newList);
-      appState.hasSyncedFromCloud = true;
+      appState.hasInitializedCloud = true;
       renderAll();
       await syncAllRecordsToFirestore(newList, oldIds);
       showToast(`已還原為系統內建預設名冊並同步至雲端（${newList.length} 筆）`, `success`);
@@ -2784,7 +2894,7 @@
       }
 
       appState.pendingImport = null;
-      appState.hasSyncedFromCloud = true;
+      appState.hasInitializedCloud = true;
       const previewBox = document.getElementById(`import-preview-box`);
       if (previewBox) previewBox.classList.add(`hidden`);
 
@@ -2796,6 +2906,7 @@
 
     Object.assign(window, {
       forceManualResync,
+      copyFirestoreRulesSnippet,
       switchLoginTab,
       handleTeacherLogin,
       handleAdminLogin,
